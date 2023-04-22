@@ -1,0 +1,25 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    id 'com.android.application' version '8.0.0' apply false
+    id 'com.android.library' version '8.0.0' apply false
+}
+
+ext {
+    groupId = "io.github.iamr0s"
+    artifactId = "Dhizuku-API"
+    artifactVersion = "1.0.1"
+    POM_NAME = "Dhizuku API"
+    POM_DESCRIPTION = "API of Dhizuku."
+    POM_URL = "https://github.com/iamr0s/Dhizuku-API"
+    POM_SCM_URL = "https://github.com/iamr0s/Dhizuku-API"
+    POM_SCM_CONNECTION = "scm:git@github.com:iamr0s/Dhizuku-API.git"
+    POM_SCM_DEV_CONNECTION = "scm:git@github.com:iamr0s/Dhizuku-API.git"
+
+    POM_LICENCE_NAME = "MIT License"
+    POM_LICENCE_URL = "https://github.com/iamr0s/Dhizuku-API/blob/main/LICENSE"
+    POM_LICENCE_DIST = "repo"
+
+    POM_DEVELOPER_ID = "iamr0s"
+    POM_DEVELOPER_NAME = "iamr0s"
+    POM_DEVELOPER_URL = "https://github.com/iamr0s"
+}
