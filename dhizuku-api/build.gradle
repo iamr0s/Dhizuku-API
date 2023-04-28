@@ -1,11 +1,5 @@
-buildscript {
-    apply from: '../keystore/r0s.gradle'
-}
-
 plugins {
     id('com.android.library')
-    id 'maven-publish'
-    id 'signing'
 }
 
 android {
@@ -33,59 +27,4 @@ android {
             aidl.srcDir("../dhizuku-aidl/src/main/aidl")
         }
     }
-
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-            withJavadocJar()
-        }
-    }
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            group rootProject.groupId
-            artifactId rootProject.artifactId
-            version rootProject.artifactVersion
-            afterEvaluate {
-                from components.release
-            }
-            pom {
-                name = rootProject.POM_NAME
-                description = rootProject.POM_DESCRIPTION
-                url = rootProject.POM_URL
-                licenses {
-                    license {
-                        name = rootProject.POM_LICENCE_NAME
-                        url = rootProject.POM_LICENCE_URL
-                    }
-                }
-                developers {
-                    developer {
-                        name = rootProject.POM_DEVELOPER_NAME
-                        url = rootProject.POM_DEVELOPER_URL
-                    }
-                }
-                scm {
-                    connection = rootProject.POM_SCM_CONNECTION
-                    url = rootProject.POM_SCM_URL
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            name 'ossrh'
-            url 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
-            credentials {
-                username ossrhUsername
-                password ossrhPassword
-            }
-        }
-    }
-}
-
-signing {
-    sign publishing.publications.mavenJava
 }
