@@ -1,6 +1,7 @@
 package com.rosan.dhizuku.api;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.os.Parcel;
 import android.os.RemoteException;
 
 import com.rosan.dhizuku.aidl.IDhizuku;
+import com.rosan.dhizuku.aidl.IDhizukuClient;
 import com.rosan.dhizuku.shared.DhizukuVariables;
 
 import java.io.File;
@@ -24,18 +26,13 @@ public class Dhizuku {
     public static boolean init(Context context) {
         assert context != null;
         if (remote != null && remote.asBinder().pingBinder()) return true;
-        Uri uri = new Uri.Builder()
-                .scheme(ContentResolver.SCHEME_CONTENT)
-                .authority(DhizukuVariables.PROVIDER_AUTHORITY)
-                .build();
+        Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(DhizukuVariables.PROVIDER_AUTHORITY).build();
+        Bundle extras = new Bundle();
+        extras.putBinder(DhizukuVariables.EXTRA_CLIENT, new IDhizukuClient.Stub() {
+        }.asBinder());
         Bundle bundle;
         try {
-            bundle = context.getContentResolver().call(
-                    uri,
-                    DhizukuVariables.PROVIDER_METHOD_CLIENT,
-                    null,
-                    null
-            );
+            bundle = context.getContentResolver().call(uri, DhizukuVariables.PROVIDER_METHOD_CLIENT, null, extras);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -86,9 +83,7 @@ public class Dhizuku {
         Bundle bundle = new Bundle();
         bundle.putInt(DhizukuVariables.PARAM_CLIENT_UID, context.getApplicationInfo().uid);
         bundle.putBinder(DhizukuVariables.PARAM_CLIENT_REQUEST_PERMISSION_BINDER, listener.asBinder());
-        Intent intent = new Intent(DhizukuVariables.ACTION_REQUEST_PERMISSION)
-                .putExtra("bundle", bundle)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent intent = new Intent(DhizukuVariables.ACTION_REQUEST_PERMISSION).putExtra("bundle", bundle).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
 

@@ -13,6 +13,8 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Dhizuku-API"
+include ':hidden-api'
 include ':dhizuku-aidl'
 include ':dhizuku-shared'
 include ':dhizuku-api'
+include ':demo'

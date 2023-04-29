@@ -2,6 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="com.rosan.dhizuku.permission.API" />
     <queries>
-        <provider android:authorities="com.rosan.dhizuku.provider" />
+        <provider android:authorities="com.rosan.dhizuku.server.provider" />
     </queries>
 </manifest>

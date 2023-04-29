@@ -13,6 +13,8 @@ public class DhizukuVariables {
 
     public static final String PROVIDER_METHOD_CLIENT = "client";
 
+    public static final String EXTRA_CLIENT = "client";
+
     public static final String PARAM_DHIZUKU_BINDER = "dhizuku_binder";
 
     public static final String PARAM_CLIENT_UID = "uid";
