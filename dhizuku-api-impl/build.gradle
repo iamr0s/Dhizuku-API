@@ -1,28 +1,25 @@
 plugins {
-    id('com.android.library')
+    id("com.android.library")
 }
 
 android {
     namespace 'com.rosan.dhizuku.api'
-    compileSdkVersion 33
+    compileSdk 33
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 33
+        minSdk 19
     }
 
     buildFeatures {
         buildConfig false
         aidl true
     }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
 }
 
 dependencies {
+    api project(':dhizuku-aidl')
+    api project(':dhizuku-shared')
+
     def annotation = "1.6.0"
     implementation "androidx.annotation:annotation:$annotation"
 }

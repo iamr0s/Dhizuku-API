@@ -41,6 +41,12 @@ Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
 
 ### 使用方法与更改记录
 
+### v2.0
+
+### 开启一个自定义服务（UserService）
+
+会向Dhizuku服务器发起一个请求，用于开启UserService，类似于Android系统本身的Service，但是是基于AIDL。
+
 ### v1.0.1
 
 ### 远程执行一段命令（newProcess）

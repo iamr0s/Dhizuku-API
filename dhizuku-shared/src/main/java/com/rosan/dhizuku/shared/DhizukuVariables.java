@@ -21,5 +21,11 @@ public class DhizukuVariables {
 
     public static final String PARAM_CLIENT_REQUEST_PERMISSION_BINDER = "request_permission_binder";
 
+    public static final String PARAM_PACKAGE_NAME = "package_name";
+
+    public static final String PARAM_CLASS_NAME = "class_name";
+
+    public static final String PARAM_COMPONENT = "component";
+
     public static final int TRANSACT_CODE_REMOTE_BINDER = Binder.FIRST_CALL_TRANSACTION + 10;
 }
