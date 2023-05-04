@@ -31,6 +31,11 @@ public class MainActivity extends ComponentActivity {
             finish();
             return;
         }
+        if (Dhizuku.getVersionCode() < 3) {
+            toast("please install >= Dhizuku v2.0");
+            finish();
+            return;
+        }
         if (!Dhizuku.isPermissionGranted())
             Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
                 @Override

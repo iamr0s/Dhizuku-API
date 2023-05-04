@@ -1,6 +1,7 @@
 package com.rosan.dhizuku.api;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityThread;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,13 +26,20 @@ public class Dhizuku {
     private static IDhizuku remote = null;
 
     /**
+     * @see #init(Context)
+     */
+    public static boolean init() {
+        if (mContext == null) mContext = ActivityThread.currentActivityThread().getApplication();
+        return init(mContext);
+    }
+
+    /**
      * Request binder from Dhizuku.
      *
      * @param context Context of this application that support ContentProvider request.
      * @return If binder is received. (If not, maybe (Dhizuku not working / Dhizuku not active / Dhizuku not installed))
      */
-    public static boolean init(Context context) {
-        assert context != null;
+    public static boolean init(@NonNull Context context) {
         if (remote != null && remote.asBinder().pingBinder()) return true;
         Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(DhizukuVariables.PROVIDER_AUTHORITY).build();
         Bundle extras = new Bundle();
@@ -105,16 +113,13 @@ public class Dhizuku {
     }
 
     /**
-     * @see #requestPermission(Context, DhizukuRequestPermissionListener)
+     * request the permission that can use privileged method.
      */
     public static void requestPermission(DhizukuRequestPermissionListener listener) {
         requestPermission(mContext, listener);
     }
 
-    /**
-     * request the permission that can use privileged method.
-     */
-    public static void requestPermission(Context context, DhizukuRequestPermissionListener listener) {
+    private static void requestPermission(Context context, DhizukuRequestPermissionListener listener) {
         Bundle bundle = new Bundle();
         bundle.putInt(DhizukuVariables.PARAM_CLIENT_UID, context.getApplicationInfo().uid);
         bundle.putBinder(DhizukuVariables.PARAM_CLIENT_REQUEST_PERMISSION_BINDER, listener.asBinder());

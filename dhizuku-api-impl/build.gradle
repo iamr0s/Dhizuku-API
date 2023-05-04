@@ -22,4 +22,6 @@ dependencies {
 
     def annotation = "1.6.0"
     implementation "androidx.annotation:annotation:$annotation"
+
+    implementation project(':hidden-api')
 }
