@@ -27,6 +27,15 @@ ext {
 
 String rootPath = rootDir.path
 
+def apiModuleName = ":dhizuku-api"
+def hasApiModule = false
+for (p in getAllprojects()) {
+    if (p.name == apiModuleName) {
+        hasApiModule = true
+        break
+    }
+}
+if (!hasApiModule) return
 project(":dhizuku-api") {
     afterEvaluate {
         String extGradlePath = "$rootPath/keystore/r0s.gradle"

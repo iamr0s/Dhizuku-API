@@ -40,9 +40,11 @@ public class MainActivity extends ComponentActivity {
             });
         else bindUserService();
         EditText editText = findViewById(R.id.edit_text);
-        Button button = findViewById(R.id.button);
-        button.setOnClickListener(v -> {
-            bindUserService();
+        Button uninstallButton = findViewById(R.id.uninstall_button);
+        Button disableButton = findViewById(R.id.disable_button);
+        Button enableButton = findViewById(R.id.enable_button);
+        Button organizationNameButton = findViewById(R.id.organization_name_button);
+        uninstallButton.setOnClickListener(v -> {
             if (service == null) toast("please bind service first");
             else {
                 try {
@@ -51,6 +53,39 @@ public class MainActivity extends ComponentActivity {
                     e.printStackTrace();
                 }
                 toast("uninstall:", editText.getText());
+            }
+        });
+        disableButton.setOnClickListener(v -> {
+            if (service == null) toast("please bind service first");
+            else {
+                try {
+                    service.setApplicationHidden(editText.getText().toString(), true);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                toast("disable:", editText.getText());
+            }
+        });
+        enableButton.setOnClickListener(v -> {
+            if (service == null) toast("please bind service first");
+            else {
+                try {
+                    service.setApplicationHidden(editText.getText().toString(), false);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                toast("enable:", editText.getText());
+            }
+        });
+        organizationNameButton.setOnClickListener(v -> {
+            if (service == null) toast("please bind service first");
+            else {
+                try {
+                    service.setOrganizationName(editText.getText().toString());
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                toast("set organization name:", editText.getText());
             }
         });
     }

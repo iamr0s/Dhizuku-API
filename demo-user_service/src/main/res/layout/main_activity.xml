@@ -8,13 +8,31 @@
         android:id="@+id/edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="package name | 包名"
+        android:hint="content | 内容"
         android:maxLines="1" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/uninstall_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="UNINSTALL | 卸载" />
+        android:text="UNINSTALL | 卸载 (package name | 包名)" />
+
+    <Button
+        android:id="@+id/disable_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="DISABLE | 冻结 (package name | 包名)" />
+
+    <Button
+        android:id="@+id/enable_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ENABLE | 解冻 (package name | 包名)" />
+
+    <Button
+        android:id="@+id/organization_name_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Set Organization Name | 设置组织名称" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>
