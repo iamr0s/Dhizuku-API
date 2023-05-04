@@ -18,5 +18,7 @@ include ':demo-user_service'
 include ':hidden-api'
 include ':dhizuku-aidl'
 include ':dhizuku-shared'
-include ':dhizuku-api'
 include ':dhizuku-api-impl'
+if (hasProperty("publish")) {
+    include ':dhizuku-api'
+}
