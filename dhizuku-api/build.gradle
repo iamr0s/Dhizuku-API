@@ -46,7 +46,7 @@ android {
 
 dependencies {
     def annotation = "1.6.0"
-    implementation "androidx.annotation:annotation:$annotation"
+    compileOnly "androidx.annotation:annotation:$annotation"
 
     compileOnly project(':hidden-api')
 }
