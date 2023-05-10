@@ -1,11 +1,12 @@
 package com.rosan.dhizuku.demo_user_service;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.widget.Button;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -19,8 +20,10 @@ import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends ComponentActivity {
+public class MainActivity extends ComponentActivity implements View.OnClickListener {
     private IUserService service;
+
+    private EditText editText;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,55 +47,12 @@ public class MainActivity extends ComponentActivity {
                 }
             });
         else bindUserService();
-        EditText editText = findViewById(R.id.edit_text);
-        Button uninstallButton = findViewById(R.id.uninstall_button);
-        Button disableButton = findViewById(R.id.disable_button);
-        Button enableButton = findViewById(R.id.enable_button);
-        Button organizationNameButton = findViewById(R.id.organization_name_button);
-        uninstallButton.setOnClickListener(v -> {
-            if (service == null) toast("please bind service first");
-            else {
-                try {
-                    service.uninstall(editText.getText().toString());
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-                toast("uninstall:", editText.getText());
-            }
-        });
-        disableButton.setOnClickListener(v -> {
-            if (service == null) toast("please bind service first");
-            else {
-                try {
-                    service.setApplicationHidden(editText.getText().toString(), true);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-                toast("disable:", editText.getText());
-            }
-        });
-        enableButton.setOnClickListener(v -> {
-            if (service == null) toast("please bind service first");
-            else {
-                try {
-                    service.setApplicationHidden(editText.getText().toString(), false);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-                toast("enable:", editText.getText());
-            }
-        });
-        organizationNameButton.setOnClickListener(v -> {
-            if (service == null) toast("please bind service first");
-            else {
-                try {
-                    service.setOrganizationName(editText.getText().toString());
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-                toast("set organization name:", editText.getText());
-            }
-        });
+        editText = findViewById(R.id.edit_text);
+        findViewById(R.id.uninstall_button).setOnClickListener(this);
+        findViewById(R.id.disable_button).setOnClickListener(this);
+        findViewById(R.id.enable_button).setOnClickListener(this);
+        findViewById(R.id.organization_name_button).setOnClickListener(this);
+        findViewById(R.id.switch_camera_disable).setOnClickListener(this);
     }
 
     void bindUserService() {
@@ -132,5 +92,35 @@ public class MainActivity extends ComponentActivity {
 
     String join(Object... objects) {
         return join(Arrays.asList(objects));
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (service == null) toast("please bind service first");
+        else {
+            try {
+                onClickInner(view);
+            } catch (RemoteException e) {
+                toast(e.getLocalizedMessage());
+            }
+        }
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    private void onClickInner(View view) throws RemoteException {
+        String text = editText.getText().toString();
+        int id = view.getId();
+        if (id == R.id.uninstall_button) {
+            service.uninstall(text);
+        } else if (id == R.id.disable_button) {
+            service.setApplicationHidden(text, true);
+        } else if (id == R.id.enable_button) {
+            service.setApplicationHidden(text, false);
+        } else if (id == R.id.organization_name_button) {
+            service.setOrganizationName(text);
+        } else if (id == R.id.switch_camera_disable) {
+            if (Dhizuku.getVersionCode() < 4) toast("please install >= Dhizuku v2.4");
+            else service.switchCameraDisabled();
+        }
     }
 }

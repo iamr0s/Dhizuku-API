@@ -11,4 +11,8 @@ interface IUserService {
     void setApplicationHidden(String packageName, boolean state) = 22;
 
     void setOrganizationName(String name) = 23;
+
+    void lockNow() = 24;
+
+    void switchCameraDisabled() = 25;
 }

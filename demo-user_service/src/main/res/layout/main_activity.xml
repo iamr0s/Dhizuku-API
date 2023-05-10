@@ -8,31 +8,37 @@
         android:id="@+id/edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="content | 内容"
+        android:hint="@string/content"
         android:maxLines="1" />
 
     <Button
         android:id="@+id/uninstall_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="UNINSTALL | 卸载 (package name | 包名)" />
+        android:text="@string/uninstall_app" />
 
     <Button
         android:id="@+id/disable_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="DISABLE | 冻结 (package name | 包名)" />
+        android:text="@string/disable_app" />
 
     <Button
         android:id="@+id/enable_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ENABLE | 解冻 (package name | 包名)" />
+        android:text="@string/enable_app" />
 
     <Button
         android:id="@+id/organization_name_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Set Organization Name | 设置组织名称" />
+        android:text="@string/set_organization_name" />
+
+    <Button
+        android:id="@+id/switch_camera_disable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/switch_camera_disabled" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>

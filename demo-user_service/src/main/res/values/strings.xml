@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">demo-user_service</string>
+    <string name="app_name">UserService Demo</string>
+    <string name="content">Content</string>
+    <string name="uninstall_app">Uninstall App</string>
+    <string name="disable_app">Disable App</string>
+    <string name="enable_app">Enable App</string>
+    <string name="set_organization_name">Set Organization Name</string>
+    <string name="switch_camera_disabled">Switch Camera Disabled</string>
 </resources>
