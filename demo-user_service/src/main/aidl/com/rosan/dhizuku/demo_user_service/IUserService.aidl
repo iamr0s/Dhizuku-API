@@ -15,4 +15,6 @@ interface IUserService {
     void lockNow() = 24;
 
     void switchCameraDisabled() = 25;
+
+    void setGlobalProxy(String url) = 26;
 }

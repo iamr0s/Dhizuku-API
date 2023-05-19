@@ -6,4 +6,5 @@
     <string name="enable_app">Enable App</string>
     <string name="set_organization_name">Set Organization Name</string>
     <string name="switch_camera_disabled">Switch Camera Disabled</string>
+    <string name="set_global_proxy">Set Global Proxy</string>
 </resources>

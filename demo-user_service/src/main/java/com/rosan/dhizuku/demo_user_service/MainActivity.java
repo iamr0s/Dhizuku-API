@@ -3,6 +3,8 @@ package com.rosan.dhizuku.demo_user_service;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
+import android.net.ProxyInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -53,6 +55,7 @@ public class MainActivity extends ComponentActivity implements View.OnClickListe
         findViewById(R.id.enable_button).setOnClickListener(this);
         findViewById(R.id.organization_name_button).setOnClickListener(this);
         findViewById(R.id.switch_camera_disable).setOnClickListener(this);
+        findViewById(R.id.set_global_proxy).setOnClickListener(this);
     }
 
     void bindUserService() {
@@ -81,11 +84,10 @@ public class MainActivity extends ComponentActivity implements View.OnClickListe
     String join(List<Object> objects) {
         String sep = " ";
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < objects.size(); i++) {
-            Object object = objects.get(i);
-            builder.append(object);
-            if (i + 1 != objects.size())
-                builder.append(sep);
+        int count = 0;
+        for (Object element : objects) {
+            if (++count > 1) builder.append(" ");
+            builder.append(element == null ? "null" : element);
         }
         return builder.toString();
     }
@@ -121,6 +123,8 @@ public class MainActivity extends ComponentActivity implements View.OnClickListe
         } else if (id == R.id.switch_camera_disable) {
             if (Dhizuku.getVersionCode() < 4) toast("please install >= Dhizuku v2.4");
             else service.switchCameraDisabled();
+        } else if (id == R.id.set_global_proxy) {
+            service.setGlobalProxy(text);
         }
     }
 }

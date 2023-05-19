@@ -41,4 +41,10 @@
         android:layout_height="wrap_content"
         android:text="@string/switch_camera_disabled" />
 
+    <Button
+        android:id="@+id/set_global_proxy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/set_global_proxy" />
+
 </androidx.appcompat.widget.LinearLayoutCompat>

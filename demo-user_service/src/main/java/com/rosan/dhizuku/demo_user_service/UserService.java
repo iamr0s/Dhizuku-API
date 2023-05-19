@@ -6,6 +6,8 @@ import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInstaller;
+import android.net.ProxyInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.RemoteException;
 
@@ -62,5 +64,21 @@ public class UserService extends IUserService.Stub {
     public void switchCameraDisabled() {
         boolean currentState = devicePolicyManager.getCameraDisabled(DhizukuVariables.COMPONENT_NAME);
         devicePolicyManager.setCameraDisabled(DhizukuVariables.COMPONENT_NAME, !currentState);
+    }
+
+    @Override
+    public void setGlobalProxy(String url) {
+        ProxyInfo proxy = null;
+        if (!url.isEmpty()) {
+            if (url.startsWith("http") || url.startsWith("https")) {
+                Uri uri = Uri.parse(url);
+                proxy = ProxyInfo.buildPacProxy(uri);
+            } else {
+                String[] urlElements = url.split(":");
+                if (urlElements.length != 2) return;
+                proxy = ProxyInfo.buildDirectProxy(urlElements[0], Integer.parseInt(urlElements[1]));
+            }
+        }
+        devicePolicyManager.setRecommendedGlobalProxy(DhizukuVariables.COMPONENT_NAME, proxy);
     }
 }
