@@ -7,4 +7,6 @@
     <string name="set_organization_name">设置组织名称</string>
     <string name="switch_camera_disabled">切换相机禁用状态</string>
     <string name="set_global_proxy">设置全局代理</string>
+    <string name="create_user">创建新用户（名称）</string>
+    <string name="remove_user">移除用户（ID）</string>
 </resources>

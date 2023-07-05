@@ -7,4 +7,6 @@
     <string name="set_organization_name">Set Organization Name</string>
     <string name="switch_camera_disabled">Switch Camera Disabled</string>
     <string name="set_global_proxy">Set Global Proxy</string>
+    <string name="create_user">Create New User (user name)</string>
+    <string name="remove_user">Remove User (user id)</string>
 </resources>

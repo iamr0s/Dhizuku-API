@@ -1,5 +1,6 @@
 package com.rosan.dhizuku.aidl;
 
+import android.content.ComponentName;
 import android.os.IBinder;
 import android.os.Parcel;
 import com.rosan.dhizuku.aidl.IDhizukuRemoteProcess;
@@ -20,4 +21,8 @@ interface IDhizuku {
     void bindUserService(in IDhizukuUserServiceConnection connection, in Bundle bundle) = 12;
 
     void unbindUserService(in Bundle bundle) = 13;
+
+    String[] getDelegatedScopes(String packageName) = 15;
+
+    void setDelegatedScopes(String packageName,in String[] scopes) = 16;
 }

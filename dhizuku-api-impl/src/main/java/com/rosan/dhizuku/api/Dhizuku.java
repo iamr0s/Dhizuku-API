@@ -7,12 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import com.rosan.dhizuku.aidl.IDhizuku;
 import com.rosan.dhizuku.shared.DhizukuVariables;
@@ -212,6 +214,24 @@ public class Dhizuku {
         } catch (RemoteException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    public static String[] getDelegatedScopes() {
+        try {
+            return requireServer().getDelegatedScopes(mContext.getPackageName());
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    public static void setDelegatedScopes(String[] scopes) {
+        try {
+            requireServer().setDelegatedScopes(mContext.getPackageName(), scopes);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
     }
 }

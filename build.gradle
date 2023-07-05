@@ -7,7 +7,7 @@ plugins {
 ext {
     groupId = "io.github.iamr0s"
     artifactId = "Dhizuku-API"
-    artifactVersion = "2.3"
+    artifactVersion = "2.4"
     POM_NAME = "Dhizuku API"
     POM_DESCRIPTION = "API of Dhizuku."
     POM_URL = "https://github.com/iamr0s/Dhizuku-API"

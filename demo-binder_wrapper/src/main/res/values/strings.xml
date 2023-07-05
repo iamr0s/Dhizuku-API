@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name" translatable="false">BinderWrapper Demo</string>
+    <string name="package_name">package name</string>
+    <string name="dhizuku_init_failed">please install or launch Dhizuku Server Application,then relaunch this.</string>
+    <string name="dhizuku_permission_denied">Please agree the Dhizuku permission request.</string>
+    <string name="block_uninstall_app">Block Uninstall App</string>
+    <string name="unblock_uninstall_app">Unblock Uninstall App</string>
+    <string name="disable_app">Disable App</string>
+    <string name="enable_app">Enable App</string>
+</resources>

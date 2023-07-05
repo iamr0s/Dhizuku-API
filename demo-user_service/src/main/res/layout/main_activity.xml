@@ -47,4 +47,16 @@
         android:layout_height="wrap_content"
         android:text="@string/set_global_proxy" />
 
+    <Button
+        android:id="@+id/create_user"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/create_user" />
+
+    <Button
+        android:id="@+id/remove_user"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/remove_user" />
+
 </androidx.appcompat.widget.LinearLayoutCompat>
