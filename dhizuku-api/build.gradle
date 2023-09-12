@@ -11,11 +11,11 @@ if (file(extGradlePath).exists()) {
 
 android {
     namespace 'com.rosan.dhizuku.api'
-    compileSdkVersion 33
+    compileSdk 33
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 33
+        minSdk 19
+        targetSdk 33
     }
 
     buildFeatures {
