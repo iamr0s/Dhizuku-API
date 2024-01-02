@@ -4,10 +4,9 @@ plugins {
 
 android {
     namespace 'com.rosan.dhizuku.demo'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
-        applicationId "com.rosan.dhizuku.demo_user_service"
         minSdk 21
         targetSdk 33
         versionCode 1
@@ -28,8 +27,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
