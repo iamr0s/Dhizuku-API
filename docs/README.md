@@ -34,7 +34,7 @@ Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
         public void onRequestPermission(int grantResult) throws RemoteException {
             if (grantResult == PackageManager.PERMISSION_GRANTED) {
                 // do success code
-            }else {
+            } else {
                 // do failure code
             }
         }
