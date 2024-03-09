@@ -4,14 +4,18 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+    plugins {
+        id 'com.android.application' version '8.2.2' apply false
+        id 'com.android.library' version '8.2.2' apply false
+    }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
     }
 }
+
 rootProject.name = "Dhizuku-API"
 include ':demo-user_service'
 include ':demo-delegated_scopes'

@@ -17,10 +17,22 @@ android {
         aidl true
     }
 
+    signingConfigs {
+        android {
+            storeFile rootProject.file('android.jks')
+            storePassword 'android'
+            keyAlias 'android'
+            keyPassword 'android'
+        }
+    }
+
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
+            multiDexEnabled false
             proguardFiles += 'proguard-rules.pro'
+            signingConfig signingConfigs.android
         }
     }
 
