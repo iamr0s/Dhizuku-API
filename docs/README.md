@@ -1,6 +1,6 @@
 # Dhizuku API
 
-English | [简体中文](README_zh_rCN.md)
+English | [简体中文](README_zh_rCN.md) | [日本語](README_ja.md)
 
 Dhizuku API is the api of [Dhizuku](https://github.com/iamr0s/Dhizuku). Used to share device owner from Dhizuku.
 
