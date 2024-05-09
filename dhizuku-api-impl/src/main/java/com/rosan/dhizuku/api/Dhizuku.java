@@ -172,6 +172,7 @@ public class Dhizuku {
     /**
      * start a UserService.
      */
+    @Deprecated
     public static void startUserService(@NonNull DhizukuUserServiceArgs args) {
         try {
             DhizukuServiceConnections.start(requireServer(), args);
@@ -194,6 +195,7 @@ public class Dhizuku {
     /**
      * bind a UserService.
      */
+    @Deprecated
     public static boolean bindUserService(@NonNull DhizukuUserServiceArgs args, @NonNull ServiceConnection connection) {
         try {
             DhizukuServiceConnections.bind(requireServer(), args, connection);
@@ -207,6 +209,7 @@ public class Dhizuku {
     /**
      * unbind a UserService.
      */
+    @Deprecated
     public static boolean unbindUserService(@NonNull ServiceConnection connection) {
         try {
             DhizukuServiceConnections.unbind(requireServer(), connection);

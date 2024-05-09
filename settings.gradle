@@ -2,24 +2,23 @@ pluginManagement {
     repositories {
         google()
         mavenCentral()
-        gradlePluginPortal()
+    }
+    plugins {
+        id 'com.android.application' version '8.4.0' apply false
+        id 'com.android.library' version '8.4.0' apply false
     }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
     }
 }
+
 rootProject.name = "Dhizuku-API"
-include ':demo-user_service'
-include ':demo-delegated_scopes'
-include ':demo-binder_wrapper'
-include ':hidden-api'
-include ':dhizuku-aidl'
-include ':dhizuku-shared'
-include ':dhizuku-api-impl'
+include 'demo-user_service', 'demo-delegated_scopes', 'demo-binder_wrapper'
+include 'hidden-api'
+include 'dhizuku-aidl', 'dhizuku-shared', 'dhizuku-api-impl'
 if (hasProperty("publish")) {
-    include ':dhizuku-api'
+    include 'dhizuku-api'
 }

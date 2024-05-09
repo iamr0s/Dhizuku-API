@@ -29,6 +29,7 @@ class DhizukuServiceConnections {
             }
         }
 
+        @Deprecated
         void onServiceConnected(Bundle bundle, IBinder service) {
             DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(bundle);
             ComponentName name = args.getComponentName();
@@ -39,6 +40,7 @@ class DhizukuServiceConnections {
             serviceConnection.onServiceConnected(name, service);
         }
 
+        @Deprecated
         @Override
         public void died(Bundle bundle) {
             DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(bundle);
@@ -55,6 +57,7 @@ class DhizukuServiceConnections {
 
     private static final Map<String, IBinder> services = new HashMap<>();
 
+    @Deprecated
     static void start(@NonNull IDhizuku dhizuku, @NonNull DhizukuUserServiceArgs args) throws RemoteException {
         ComponentName name = args.getComponentName();
         String token = name.flattenToString();
@@ -66,6 +69,7 @@ class DhizukuServiceConnections {
         dhizuku.unbindUserService(args.build());
     }
 
+    @Deprecated
     static void bind(@NonNull IDhizuku dhizuku, @NonNull DhizukuUserServiceArgs args, @NonNull ServiceConnection connection) throws RemoteException {
         ComponentName name = args.getComponentName();
         String token = name.flattenToString();
@@ -80,6 +84,7 @@ class DhizukuServiceConnections {
         else connection.onServiceConnected(name, service);
     }
 
+    @Deprecated
     static void unbind(@NonNull IDhizuku dhizuku, @NonNull ServiceConnection connection) throws RemoteException {
         List<String> tokens = new ArrayList<>();
         for (Map.Entry<String, DhizukuServiceConnection> entry : map.entrySet()) {

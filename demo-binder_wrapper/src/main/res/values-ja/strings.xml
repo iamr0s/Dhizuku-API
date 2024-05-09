@@ -1,0 +1,9 @@
+<resources>
+    <string name="package_name">パッケージ名</string>
+    <string name="dhizuku_init_failed">Dhizuku のサーバーを開始してから、このアプリを再起動してください。</string>
+    <string name="dhizuku_permission_denied">Dhizuku の権限要求を許可してください。</string>
+    <string name="block_uninstall_app">アプリのアンインストールをブロック</string>
+    <string name="unblock_uninstall_app">アプリのアンインストールのブロックを解除</string>
+    <string name="disable_app">アプリを無効化</string>
+    <string name="enable_app">アプリを有効化</string>
+</resources>

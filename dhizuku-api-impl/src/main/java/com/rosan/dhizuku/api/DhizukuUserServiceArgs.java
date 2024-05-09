@@ -27,6 +27,7 @@ public class DhizukuUserServiceArgs {
         return this;
     }
 
+    @Deprecated
     public ComponentName getComponentName() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
             return bundle.getParcelable(DhizukuVariables.PARAM_COMPONENT, ComponentName.class);

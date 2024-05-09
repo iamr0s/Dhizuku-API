@@ -1,7 +1,7 @@
 plugins {
-    id('com.android.library')
-    id('maven-publish')
-    id('signing')
+    id 'com.android.library'
+    id 'maven-publish'
+    id 'signing'
 }
 
 def extGradlePath = rootDir.path + "/keystore/r0s.gradle"
@@ -11,11 +11,11 @@ if (file(extGradlePath).exists()) {
 
 android {
     namespace 'com.rosan.dhizuku.api'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         minSdk 19
-        targetSdk 33
+        targetSdk 34
     }
 
     buildFeatures {
@@ -24,8 +24,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     sourceSets {
@@ -45,7 +45,7 @@ android {
 }
 
 dependencies {
-    def annotation = "1.6.0"
+    def annotation = "1.7.1"
     compileOnly "androidx.annotation:annotation:$annotation"
 
     compileOnly project(':hidden-api')

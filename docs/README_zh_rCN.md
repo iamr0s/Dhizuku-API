@@ -1,6 +1,6 @@
 # Dhizuku API
 
-简体中文 | [English](README.md)
+[English](README.md) | 简体中文 | [日本語](README_ja.md)
 
 Dhizuku API 是 [Dhizuku](https://github.com/iamr0s/Dhizuku) 的 API。
 

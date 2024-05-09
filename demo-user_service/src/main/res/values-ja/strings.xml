@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">UserService デモ</string>
+    <string name="content">内容</string>
+    <string name="uninstall_app">アプリをアンインストール</string>
+    <string name="disable_app">アプリを無効化</string>
+    <string name="enable_app">アプリを有効化</string>
+    <string name="set_organization_name">組織名を設定</string>
+    <string name="switch_camera_disabled">カメラの有効状態を切り替え</string>
+    <string name="set_global_proxy">共通 Proxy を設定</string>
+    <string name="create_user">新しいユーザーを作成 (ユーザー名)</string>
+    <string name="remove_user">ユーザーを削除 (ユーザーID)</string>
+</resources>

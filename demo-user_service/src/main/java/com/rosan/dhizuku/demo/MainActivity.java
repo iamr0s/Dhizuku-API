@@ -58,6 +58,7 @@ public class MainActivity extends ComponentActivity implements View.OnClickListe
         findViewById(R.id.remove_user).setOnClickListener(this);
     }
 
+    @Deprecated
     void bindUserService() {
         DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(this, UserService.class));
         boolean bind = Dhizuku.bindUserService(args, new ServiceConnection() {
