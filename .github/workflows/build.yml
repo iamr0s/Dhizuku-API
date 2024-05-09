@@ -38,9 +38,12 @@ jobs:
             echo "commit=$(echo ${{ github.sha }} | cut -c-7)"
           } >> $GITHUB_ENV
           find demo-*/build/outputs/apk/ -type f -name "*.apk" -exec cp {} . \;
+          find {hidden-api,dhizuku-*}/build/outputs/aar/ -type f -name "*.aar" -exec cp {} . \;
 
-      - name: Upload APK
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Dhizuku-API(${{ env.version }}@${{ env.commit }})
-          path: demo-*-release.apk
+          path: |
+            ./*.apk
+            ./*.aar
