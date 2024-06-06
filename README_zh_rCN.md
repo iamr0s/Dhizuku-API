@@ -35,6 +35,7 @@ Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
         @Override
         public void onRequestPermission(int grantResult) throws RemoteException {
             if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                ComponentName component = Dhizuku.getOwnerComponent(); // current Dhizuku Server Admin Receiver
                 // do success code
             }else {
                 // do failure code

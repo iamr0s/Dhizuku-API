@@ -13,13 +13,11 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Dhizuku-API"
-include ':demo-user_service'
-include ':demo-delegated_scopes'
-include ':demo-binder_wrapper'
 include ':hidden-api'
-include ':dhizuku-aidl'
-include ':dhizuku-shared'
-include ':dhizuku-api-impl'
-if (hasProperty("publish")) {
-    include ':dhizuku-api'
-}
+include ':Dhizuku-API'
+project(':Dhizuku-API').projectDir = file("${rootDir.path}/dhizuku-api")
+include ':dhizuku-api-demo'
+
+include ':Dhizuku-SERVER_API'
+project(':Dhizuku-SERVER_API').projectDir = file("${rootDir.path}/dhizuku-server_api")
+include ':dhizuku-server-demo'
