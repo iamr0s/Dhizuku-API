@@ -3,11 +3,13 @@ package com.rosan.dhizuku.api;
 import android.annotation.SuppressLint;
 import android.app.ActivityThread;
 import android.app.admin.DevicePolicyManager;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -180,7 +182,14 @@ public class Dhizuku {
                 .putExtras(bundle)
                 .putExtra("bundle", bundle) // Will be deprecated in the future.
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
+        try {
+            context.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            try {
+                listener.onRequestPermission(PackageManager.PERMISSION_DENIED);
+            } catch (RemoteException ignored) {
+            }
+        }
     }
 
     /**

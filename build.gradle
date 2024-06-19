@@ -8,7 +8,7 @@ ext {
     groupId = "io.github.iamr0s"
 
     apiArtifactId = "Dhizuku-API"
-    apiArtifactVersion = "2.5.1"
+    apiArtifactVersion = "2.5.2"
 
     serverApiArtifactId = "Dhizuku-SERVER_API"
     serverApiArtifactVersion = "0.0.3"
