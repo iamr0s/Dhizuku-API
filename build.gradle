@@ -1,17 +1,17 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
-    id 'com.android.application' version '8.4.1' apply false
-    id 'com.android.library' version '8.4.1' apply false
+    id 'com.android.application' version '8.4.2' apply false
+    id 'com.android.library' version '8.4.2' apply false
 }
 
 ext {
     groupId = "io.github.iamr0s"
 
     apiArtifactId = "Dhizuku-API"
-    apiArtifactVersion = "2.5.2"
+    apiArtifactVersion = "2.5.3"
 
     serverApiArtifactId = "Dhizuku-SERVER_API"
-    serverApiArtifactVersion = "0.0.3"
+    serverApiArtifactVersion = "0.0.4"
 
     POM_NAME = "Dhizuku API"
     POM_DESCRIPTION = "API of Dhizuku."

@@ -7,6 +7,8 @@ import java.util.Objects;
 public class DhizukuVariables {
     public static final String OFFICIAL_PACKAGE_NAME = "com.rosan.dhizuku";
 
+    public static final String PERMISSION_API = "com.rosan.dhizuku.permission.API";
+
     public static String getProviderAuthorityName(String packageName) {
         if (Objects.equals(packageName, OFFICIAL_PACKAGE_NAME))
             return OFFICIAL_PACKAGE_NAME + ".server.provider";

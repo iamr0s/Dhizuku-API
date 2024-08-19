@@ -44,9 +44,16 @@ public abstract class DhizukuService extends IDhizuku.Stub {
         return Variables.SERVICE_VERSION_CODE;
     }
 
-    public boolean checkCallingPermission(String func, int callingUid, int callingPid) {
-        return true;
+    public boolean isPermissionGranted() {
+        try {
+            enforceCallingPermission(null);
+            return true;
+        } catch (SecurityException ignored) {
+            return false;
+        }
     }
+
+    public abstract boolean checkCallingPermission(String func, int callingUid, int callingPid);
 
     public final void enforceCallingPermission(String func) {
         int callingUid = Binder.getCallingUid();
