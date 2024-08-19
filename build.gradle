@@ -5,6 +5,9 @@ plugins {
 }
 
 ext {
+    MIN_SDK = 19
+    TARGET_SDK = 35
+
     groupId = "io.github.iamr0s"
 
     apiArtifactId = "Dhizuku-API"
