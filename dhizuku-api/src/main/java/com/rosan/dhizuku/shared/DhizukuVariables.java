@@ -1,5 +1,6 @@
 package com.rosan.dhizuku.shared;
 
+import android.content.ComponentName;
 import android.os.Binder;
 
 import java.util.Objects;
@@ -7,7 +8,9 @@ import java.util.Objects;
 public class DhizukuVariables {
     public static final String OFFICIAL_PACKAGE_NAME = "com.rosan.dhizuku";
 
-    public static final String PERMISSION_API = "com.rosan.dhizuku.permission.API";
+    public static final String PERMISSION_API = OFFICIAL_PACKAGE_NAME + ".permission.API";
+
+    public static final ComponentName COMPONENT_NAME = new ComponentName(OFFICIAL_PACKAGE_NAME, OFFICIAL_PACKAGE_NAME + ".server.DhizukuDAReceiver");
 
     public static String getProviderAuthorityName(String packageName) {
         if (Objects.equals(packageName, OFFICIAL_PACKAGE_NAME))
