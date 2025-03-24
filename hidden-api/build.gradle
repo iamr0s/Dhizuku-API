@@ -1,12 +1,22 @@
 plugins {
-    id("com.android.library")
+    alias(libs.plugins.agp.lib)
 }
 
 android {
-    namespace "com.rosan.hidden_api"
-    compileSdk TARGET_SDK
+    namespace = "com.rosan.hidden_api"
+    compileSdk = TARGET_SDK
 
     defaultConfig {
-        minSdk MIN_SDK
+        minSdk = MIN_SDK
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+
+    lintOptions {
+        abortOnError = false
+        disable 'ParcelCreator'
     }
 }

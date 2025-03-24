@@ -14,10 +14,10 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
 rootProject.name = "Dhizuku-API"
 include ':hidden-api'
 include ':Dhizuku-API'
 project(':Dhizuku-API').projectDir = file("${rootDir.path}/dhizuku-api")
-
 include ':Dhizuku-SERVER_API'
 project(':Dhizuku-SERVER_API').projectDir = file("${rootDir.path}/dhizuku-server_api")

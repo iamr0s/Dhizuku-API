@@ -1,31 +1,33 @@
 plugins {
-    id('com.android.library')
+    alias(libs.plugins.agp.lib)
     id('maven-publish')
     id('signing')
 }
 
+def ossrhUsername = ''
+def ossrhPassword = ''
 def extGradlePath = rootDir.path + "/keystore/r0s.gradle"
 if (file(extGradlePath).exists()) {
     apply from: extGradlePath
 }
 
 android {
-    namespace 'com.rosan.dhizuku.api'
-    compileSdk TARGET_SDK
+    namespace = 'com.rosan.dhizuku.api'
+    compileSdk = TARGET_SDK
 
     defaultConfig {
-        minSdk MIN_SDK
-        targetSdk TARGET_SDK
+        minSdk = MIN_SDK
+        targetSdk = TARGET_SDK
     }
 
     buildFeatures {
-        buildConfig false
-        aidl true
+        buildConfig = false
+        aidl = true
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 
     publishing {
@@ -37,18 +39,16 @@ android {
 }
 
 dependencies {
-    def annotation = "1.6.0"
-    compileOnly "androidx.annotation:annotation:$annotation"
-
+    compileOnly(libs.annotation)
     compileOnly project(':hidden-api')
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            group rootProject.groupId
-            artifactId rootProject.apiArtifactId
-            version rootProject.apiArtifactVersion
+            group = rootProject.groupId
+            artifactId = rootProject.apiArtifactId
+            version = rootProject.apiArtifactVersion
             afterEvaluate {
                 from components.release
             }
@@ -77,11 +77,11 @@ publishing {
     }
     repositories {
         maven {
-            name 'ossrh'
-            url 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            name = 'ossrh'
+            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
             credentials {
-                username ossrhUsername
-                password ossrhPassword
+                username = ossrhUsername
+                password = ossrhPassword
             }
         }
     }
@@ -89,4 +89,8 @@ publishing {
 
 signing {
     sign publishing.publications.mavenJava
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
 }
