@@ -6,6 +6,8 @@ import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import androidx.annotation.NonNull;
+
 import com.rosan.dhizuku.aidl.IDhizukuUserServiceConnection;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 
@@ -52,7 +54,7 @@ public class UserServiceConnections {
         }
     }
 
-    private void start(DhizukuUserServiceArgs args) {
+    private void start(@NonNull DhizukuUserServiceArgs args) {
         String token = args.getComponentName().flattenToShortString();
         UserServiceConnection.UserServiceInfo service = infoMap.get(token);
         if (service != null) return;
@@ -71,7 +73,8 @@ public class UserServiceConnections {
         }
     }
 
-    public void stop(DhizukuUserServiceArgs args) {
+    /** @noinspection unused*/
+    public void stop(@NonNull DhizukuUserServiceArgs args) {
         String token = args.getComponentName().flattenToShortString();
         stop(token);
     }
@@ -85,7 +88,7 @@ public class UserServiceConnections {
         }
     }
 
-    public void bind(int uid, int pid, DhizukuUserServiceArgs
+    public void bind(int uid, int pid, @NonNull DhizukuUserServiceArgs
             args, IDhizukuUserServiceConnection remote) {
         String owner = uid + ":" + pid;
         String token = args.getComponentName().flattenToShortString();
@@ -103,7 +106,6 @@ public class UserServiceConnections {
 
     public void unbind(int uid, int pid, DhizukuUserServiceArgs args) {
         String owner = uid + ":" + pid;
-        String token = args.getComponentName().flattenToShortString();
 
         UserServiceConnection connection = connectionMap.get(owner);
         if (connection == null) return;

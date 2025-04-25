@@ -3,6 +3,8 @@ package com.rosan.dhizuku.api;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 
+import androidx.annotation.NonNull;
+
 import com.rosan.dhizuku.aidl.IDhizukuRemoteProcess;
 
 import java.io.InputStream;
@@ -11,6 +13,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class DhizukuRemoteProcess extends Process {
+    /** @noinspection unused*/
     private static final String TAG = "DhizukuRemoteProcess";
 
     private IDhizukuRemoteProcess remote;
@@ -24,10 +27,10 @@ public class DhizukuRemoteProcess extends Process {
     DhizukuRemoteProcess(IDhizukuRemoteProcess remote) {
         this.remote = Objects.requireNonNull(remote);
         try {
-            remote.asBinder().linkToDeath(() -> {
-                DhizukuRemoteProcess.this.remote = null;
-            }, 0);
+            remote.asBinder().linkToDeath(() ->
+                    DhizukuRemoteProcess.this.remote = null, 0);
         } catch (RemoteException e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -102,7 +105,7 @@ public class DhizukuRemoteProcess extends Process {
     }
 
     @Override
-    public boolean waitFor(long timeout, TimeUnit unit) {
+    public boolean waitFor(long timeout, @NonNull TimeUnit unit) {
         try {
             return remote.waitForTimeout(timeout, unit.toString());
         } catch (RemoteException e) {

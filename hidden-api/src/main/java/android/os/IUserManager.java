@@ -1,5 +1,6 @@
 package android.os;
 
+/** @noinspection unused*/
 public interface IUserManager extends IInterface {
     void setUserRestriction(String key, boolean value, int userHandle);
 

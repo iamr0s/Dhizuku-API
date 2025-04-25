@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings({"RedundantThrows", "CallToPrintStackTrace"})
 public class RemoteProcess extends IDhizukuRemoteProcess.Stub {
     protected Process mProcess;
 
@@ -120,6 +121,7 @@ public class RemoteProcess extends IDhizukuRemoteProcess.Stub {
     public static void transfer(InputStream in, OutputStream out) {
         new Thread(() -> {
             byte[] buf = new byte[8 * 1024];
+            //noinspection UnusedAssignment
             int len = 0;
             try {
                 while (true) {

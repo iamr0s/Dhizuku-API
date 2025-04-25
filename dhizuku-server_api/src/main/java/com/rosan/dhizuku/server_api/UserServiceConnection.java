@@ -37,9 +37,7 @@ public class UserServiceConnection {
 
     private int pid;
 
-    private IBinder.DeathRecipient recipient = () -> {
-        UserServiceConnections.get(mContext).unbind(uid, pid);
-    };
+    private final IBinder.DeathRecipient recipient = () -> UserServiceConnections.get(mContext).unbind(uid, pid);
 
     private IDhizukuUserServiceConnection mConnection;
 
@@ -72,7 +70,7 @@ public class UserServiceConnection {
         }
     }
 
-    public void register(DhizukuUserServiceArgs args) {
+    public void register(@NonNull DhizukuUserServiceArgs args) {
         synchronized (tokens) {
             String token = args.getComponentName().flattenToShortString();
             tokens.remove(token);
@@ -80,7 +78,7 @@ public class UserServiceConnection {
         }
     }
 
-    public void unregister(DhizukuUserServiceArgs args) {
+    public void unregister(@NonNull DhizukuUserServiceArgs args) {
         synchronized (tokens) {
             String token = args.getComponentName().flattenToShortString();
             tokens.remove(token);
@@ -93,7 +91,6 @@ public class UserServiceConnection {
 
     public void connected(DhizukuUserServiceArgs args,
                           UserServiceInfo info) {
-        String token = args.getComponentName().flattenToShortString();
         synchronized (tokens) {
             try {
                 mConnection.connected(args.build(), info.getService());
@@ -103,7 +100,6 @@ public class UserServiceConnection {
     }
 
     public void died(DhizukuUserServiceArgs args) {
-        String token = args.getComponentName().flattenToShortString();
         synchronized (tokens) {
             try {
                 mConnection.died(args.build());

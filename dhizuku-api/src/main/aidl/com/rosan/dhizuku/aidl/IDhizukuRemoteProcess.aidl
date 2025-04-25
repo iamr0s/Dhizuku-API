@@ -1,5 +1,7 @@
 package com.rosan.dhizuku.aidl;
 
+import android.os.ParcelFileDescriptor;
+
 interface IDhizukuRemoteProcess {
     ParcelFileDescriptor getOutputStream();
 

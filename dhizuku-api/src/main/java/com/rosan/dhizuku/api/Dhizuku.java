@@ -27,6 +27,7 @@ import com.rosan.dhizuku.shared.DhizukuVariables;
 import java.io.File;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public class Dhizuku {
     @SuppressLint("StaticFieldLeak")
     private static Context mContext = null;
@@ -36,23 +37,23 @@ public class Dhizuku {
 
     private static IDhizuku remote = null;
 
-    public static @Nullable ComponentName getOwnerComponent(Context context) {
+    public static @Nullable ComponentName getOwnerComponent(@NonNull Context context) {
         DevicePolicyManager manager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
         return getOwnerComponent(manager);
     }
 
-    public static @Nullable ComponentName getOwnerComponent(DevicePolicyManager manager) {
+    public static @Nullable ComponentName getOwnerComponent(@NonNull DevicePolicyManager manager) {
         ComponentName component = null;
         List<ComponentName> admins = manager.getActiveAdmins();
-        if (admins == null) return component;
+        if (admins == null) //noinspection ConstantValue
+            return component;
         for (ComponentName admin : admins) {
             String packageName = admin.getPackageName();
             if (manager.isDeviceOwnerApp(packageName)) {
                 component = admin;
                 break;
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                    && manager.isProfileOwnerApp(packageName)) component = admin;
+            if (manager.isProfileOwnerApp(packageName)) component = admin;
         }
         return component;
     }
@@ -73,8 +74,7 @@ public class Dhizuku {
      */
     public static boolean init(@NonNull Context context) {
         DevicePolicyManager manager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        if (remote != null && remote.asBinder().pingBinder()
-                && (manager.isDeviceOwnerApp(getOwnerPackageName()) || Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && manager.isProfileOwnerApp(getOwnerPackageName())))
+        if (remote != null && remote.asBinder().pingBinder() && (manager.isDeviceOwnerApp(getOwnerPackageName()) || manager.isProfileOwnerApp(getOwnerPackageName())))
             return true;
 
         mOwnerComponent = getOwnerComponent(context);
@@ -89,6 +89,7 @@ public class Dhizuku {
         try {
             bundle = context.getContentResolver().call(uri, DhizukuVariables.PROVIDER_METHOD_CLIENT, null, extras);
         } catch (Exception e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             return false;
         }
@@ -102,6 +103,7 @@ public class Dhizuku {
                 remote = null;
             }, 0);
         } catch (RemoteException e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         mContext = context;
@@ -169,7 +171,7 @@ public class Dhizuku {
         requestPermission(mContext, listener);
     }
 
-    private static void requestPermission(Context context, DhizukuRequestPermissionListener listener) {
+    private static void requestPermission(@NonNull Context context, @NonNull DhizukuRequestPermissionListener listener) {
         Bundle bundle = new Bundle();
         bundle.putInt(DhizukuVariables.PARAM_CLIENT_UID, context.getApplicationInfo().uid);
         bundle.putBinder(DhizukuVariables.PARAM_CLIENT_REQUEST_PERMISSION_BINDER, listener.asBinder());
@@ -197,6 +199,7 @@ public class Dhizuku {
      * and your can also use {@link #binderWrapper(IBinder)}.
      */
     public static boolean remoteTransact(IBinder iBinder, int code, Parcel data, Parcel reply, int flags) {
+        //noinspection UnusedAssignment
         boolean result = false;
         Parcel remoteData = Parcel.obtain();
         try {
@@ -217,14 +220,14 @@ public class Dhizuku {
     /**
      * Wrap the binder so that all transacts are requested by a remote server.
      */
-    public static IBinder binderWrapper(IBinder iBinder) {
+    public static @NonNull IBinder binderWrapper(IBinder iBinder) {
         return new DhizukuBinderWrapper(iBinder);
     }
 
     /**
      * create a process that work in remote server.
      */
-    public static DhizukuRemoteProcess newProcess(String[] cmd, String[] env, File dir) {
+    public static @NonNull DhizukuRemoteProcess newProcess(String[] cmd, String[] env, File dir) {
         try {
             return new DhizukuRemoteProcess(requireServer().remoteProcess(cmd, env, dir != null ? dir.getPath() : null));
         } catch (RemoteException e) {
@@ -239,6 +242,7 @@ public class Dhizuku {
         try {
             DhizukuServiceConnections.start(requireServer(), args);
         } catch (RemoteException e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -250,6 +254,7 @@ public class Dhizuku {
         try {
             DhizukuServiceConnections.stop(requireServer(), args);
         } catch (RemoteException e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -262,6 +267,7 @@ public class Dhizuku {
             DhizukuServiceConnections.bind(requireServer(), args, connection);
             return true;
         } catch (RemoteException e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             return false;
         }
@@ -275,6 +281,7 @@ public class Dhizuku {
             DhizukuServiceConnections.unbind(requireServer(), connection);
             return true;
         } catch (RemoteException e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             return false;
         }

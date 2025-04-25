@@ -9,6 +9,7 @@ import android.os.Parcel;
 import android.os.RemoteException;
 
 import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -33,8 +34,10 @@ public class UserService extends IUserServiceManager.Stub {
         System.exit(0);
     }
 
+    /** @noinspection RedundantSuppression*/
+    @SuppressWarnings("deprecation")
     @Override
-    public IBinder startService(ComponentName component) {
+    public IBinder startService(@NonNull ComponentName component) {
         String key = component.flattenToShortString();
         IBinder service = map.get(key);
         if (service != null) return service;
@@ -44,24 +47,24 @@ public class UserService extends IUserServiceManager.Stub {
                     Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
 
             Class<?> clazz = packageContext.getClassLoader().loadClass(component.getClassName());
-            Constructor<?> constructor = null;
+            Constructor<?> constructor = clazz.getConstructor();
             try {
                 constructor = clazz.getConstructor(Context.class);
+                service = (IBinder) constructor.newInstance(mContext);
             } catch (NoSuchMethodException | SecurityException ignored) {
+                service = (IBinder) constructor.newInstance();
             }
-            if (constructor != null) service = (IBinder) constructor.newInstance(mContext);
-            else service = (IBinder) clazz.newInstance();
             transact(service, 1);
             map.put(key, service);
             return service;
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
                  InvocationTargetException | RemoteException |
-                 PackageManager.NameNotFoundException ignored) {
+                 PackageManager.NameNotFoundException | NoSuchMethodException ignored) {
         }
         return null;
     }
 
-    private void transact(IBinder service, int code) throws RemoteException {
+    private void transact(@NonNull IBinder service, int code) throws RemoteException {
         Parcel data = Parcel.obtain();
         Parcel reply = Parcel.obtain();
         try {

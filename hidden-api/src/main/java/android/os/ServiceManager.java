@@ -17,9 +17,7 @@ package android.os;
 
 import java.util.Map;
 
-/**
- * @hide
- */
+/** @noinspection unused*/
 public final class ServiceManager {
     public static IBinder getService(String name) {
         throw new RuntimeException("STUB");
@@ -28,8 +26,7 @@ public final class ServiceManager {
     /**
      * Returns a reference to a service with the given name, or throws
      * {@link NullPointerException} if none is found.
-     *
-     * @hide
+     * @noinspection RedundantThrows
      */
     public static IBinder getServiceOrThrow(String name) throws ServiceNotFoundException {
         throw new RuntimeException("STUB");
@@ -83,7 +80,6 @@ public final class ServiceManager {
      * at that time, so no locking is done.
      *
      * @param cache the cache of service references
-     * @hide
      */
     public static void initServiceCache(Map<String, IBinder> cache) {
         throw new RuntimeException("STUB");
@@ -93,8 +89,6 @@ public final class ServiceManager {
      * Exception thrown when no service published for given name. This might be
      * thrown early during boot before certain services have published
      * themselves.
-     *
-     * @hide
      */
     public static class ServiceNotFoundException extends Exception {
         public ServiceNotFoundException(String name) {

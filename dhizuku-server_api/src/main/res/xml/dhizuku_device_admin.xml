@@ -11,5 +11,6 @@
         <set-global-proxy />
         <disable-keyguard-features />
     </uses-policies>
+    <!--suppress AndroidElementNotAllowed -->
     <support-transfer-ownership />
 </device-admin>

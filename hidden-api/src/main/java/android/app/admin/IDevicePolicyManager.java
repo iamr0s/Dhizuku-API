@@ -5,6 +5,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.IInterface;
 
+/** @noinspection unused*/
 public interface IDevicePolicyManager extends IInterface {
     abstract class Stub extends Binder implements IDevicePolicyManager {
         public static IDevicePolicyManager asInterface(IBinder obj) {

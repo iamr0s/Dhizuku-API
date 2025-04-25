@@ -1,10 +1,8 @@
 package com.rosan.dhizuku.aidl;
 
-import android.content.ComponentName;
-import android.os.IBinder;
-import android.os.Parcel;
+import android.os.Bundle;
+
 import com.rosan.dhizuku.aidl.IDhizukuRemoteProcess;
-import com.rosan.dhizuku.aidl.IDhizukuRequestPermissionListener;
 import com.rosan.dhizuku.aidl.IDhizukuUserServiceConnection;
 
 interface IDhizuku {

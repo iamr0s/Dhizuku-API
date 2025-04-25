@@ -99,5 +99,5 @@ Dhizuku.bindUserService(args, connection);
 
 // 処理の終了
 Dhizuku.stopUserService(args);
-Dhizuku.unbindUserService(connection));
+Dhizuku.unbindUserService(connection);
 ```

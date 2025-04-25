@@ -16,8 +16,11 @@
 
 package android.content.pm;
 
+import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
 
 import com.android.modules.utils.BaseParceledListSlice;
 
@@ -27,13 +30,15 @@ import java.util.List;
  * Transfer a large list of Parcelable objects across an IPC.  Splits into
  * multiple transactions if needed.
  *
- * @hide
  * @see BaseParceledListSlice
  */
+@SuppressLint("ParcelCreator")
 public class ParceledListSlice<T extends Parcelable> extends BaseParceledListSlice<T> {
+    /** @noinspection unused*/
     public ParceledListSlice(List<T> list) {
     }
 
+    /** @noinspection unused*/
     private ParceledListSlice(Parcel in, ClassLoader loader) {
     }
 
@@ -43,7 +48,7 @@ public class ParceledListSlice<T extends Parcelable> extends BaseParceledListSli
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
 
     }
 }

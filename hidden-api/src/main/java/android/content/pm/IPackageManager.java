@@ -10,6 +10,7 @@ import android.os.RemoteException;
 
 import java.util.List;
 
+/** @noinspection unused*/
 public interface IPackageManager extends IInterface {
     boolean isPackageAvailable(String packageName, int userId) throws RemoteException;
 

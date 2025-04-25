@@ -9,8 +9,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
-import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.rosan.dhizuku.aidl.IDhizuku;
@@ -23,6 +23,7 @@ import com.rosan.dhizuku.shared.DhizukuVariables;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 
+@SuppressWarnings("RedundantThrows")
 public abstract class DhizukuService extends IDhizuku.Stub {
     protected Context mContext;
 
@@ -32,7 +33,7 @@ public abstract class DhizukuService extends IDhizuku.Stub {
 
     protected IDhizukuClient mClient;
 
-    public DhizukuService(Context context, ComponentName admin, IDhizukuClient client) {
+    public DhizukuService(@NonNull Context context, ComponentName admin, IDhizukuClient client) {
         mContext = context;
         mManager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
         mAdmin = admin;
@@ -96,7 +97,7 @@ public abstract class DhizukuService extends IDhizuku.Stub {
         enforceCallingPermission("remote_process");
         LinkedHashMap<String, String> environment = new LinkedHashMap<>();
         if (env != null) for (String envstring : env) {
-            if (envstring.indexOf((int) '\u0000') != -1)
+            if (envstring.indexOf('\u0000') != -1)
                 envstring = envstring.replaceFirst("\u0000.*", "");
             int sign =
                     envstring.indexOf('=');

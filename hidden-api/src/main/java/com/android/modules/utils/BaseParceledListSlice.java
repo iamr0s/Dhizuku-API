@@ -31,6 +31,7 @@ import java.util.List;
  * See b/17671747.
  */
 public abstract class BaseParceledListSlice<T> implements Parcelable {
+    /** @noinspection unused*/
     public List<T> getList() {
         throw new IllegalArgumentException();
     }
