@@ -12,7 +12,7 @@ ext {
     apiArtifactVersion = "2.5.3"
 
     serverApiArtifactId = "Dhizuku-SERVER_API"
-    serverApiArtifactVersion = "0.0.4"
+    serverApiArtifactVersion = "0.0.5"
 
     POM_NAME = "Dhizuku API"
     POM_DESCRIPTION = "API of Dhizuku."
