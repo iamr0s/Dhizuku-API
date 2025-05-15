@@ -1,5 +1,6 @@
 package com.rosan.dhizuku.shared;
 
+import android.content.ComponentName;
 import android.os.Binder;
 
 import androidx.annotation.NonNull;
@@ -8,6 +9,8 @@ import java.util.Objects;
 
 public class DhizukuVariables {
     public static final String OFFICIAL_PACKAGE_NAME = "com.rosan.dhizuku";
+
+    public static final ComponentName COMPONENT_NAME = new ComponentName(OFFICIAL_PACKAGE_NAME, OFFICIAL_PACKAGE_NAME + ".server.DhizukuDAReceiver");
 
     /** @noinspection unused*/
     public static final String PERMISSION_API = "com.rosan.dhizuku.permission.API";
