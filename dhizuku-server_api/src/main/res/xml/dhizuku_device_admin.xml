@@ -6,6 +6,7 @@
         <reset-password />
         <watch-login />
         <force-lock />
+        <wipe-data />
         <encrypted-storage />
         <disable-camera />
         <set-global-proxy />
@@ -13,4 +14,5 @@
     </uses-policies>
     <!--suppress AndroidElementNotAllowed -->
     <support-transfer-ownership />
+    <headless-system-user headless-device-owner-mode="single_user" device-owner-mode="single_user" />
 </device-admin>
