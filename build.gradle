@@ -2,28 +2,11 @@
 plugins {
     alias(libs.plugins.agp.lib) apply false
 }
+
 ext {
     MIN_SDK = 26
     TARGET_SDK = 36
 
-    groupId = "io.github.iamr0s"
-
-    apiArtifactId = "Dhizuku-API"
-    apiArtifactVersion = "2.5.4"
-
-    serverApiArtifactId = "Dhizuku-SERVER_API"
-    serverApiArtifactVersion = "0.0.6"
-
-    POM_NAME = "Dhizuku API"
-    POM_DESCRIPTION = "API of Dhizuku."
-    POM_URL = "https://github.com/iamr0s/Dhizuku-API"
-    POM_SCM_URL = "https://github.com/iamr0s/Dhizuku-API"
-    POM_SCM_CONNECTION = "scm:git@github.com:iamr0s/Dhizuku-API.git"
-    POM_SCM_DEV_CONNECTION = "scm:git@github.com:iamr0s/Dhizuku-API.git"
-
-    POM_LICENCE_NAME = "MIT License"
-    POM_LICENCE_URL = "https://github.com/iamr0s/Dhizuku-API/blob/main/LICENSE"
-
-    POM_DEVELOPER_NAME = "iamr0s"
-    POM_DEVELOPER_URL = "https://github.com/iamr0s"
+    API_VERSION = '2.5.4'
+    SERVER_API_VERSION = '0.0.6'
 }

@@ -4,11 +4,10 @@ plugins {
     id('signing')
 }
 
-def ossrhUsername = ''
-def ossrhPassword = ''
-def extGradlePath = rootDir.path + "/keystore/r0s.gradle"
-if (file(extGradlePath).exists()) {
-    apply from: extGradlePath
+def publishingProps = new Properties()
+def publishingFile = file("${rootDir}/keystore/publishing.properties")
+if (publishingFile.exists()) {
+    publishingProps.load(publishingFile.newInputStream())
 }
 
 android {
@@ -47,31 +46,34 @@ dependencies {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            group = rootProject.groupId
-            artifactId = rootProject.serverApiArtifactId
-            version = rootProject.serverApiArtifactVersion
+        mavenRelease(MavenPublication) {
             afterEvaluate {
                 from components.release
             }
+
+            group = publishingProps['groupId']
+            artifactId = publishingProps['serverApi.artifactId']
+            version = SERVER_API_VERSION
+
             pom {
-                name = rootProject.POM_NAME
-                description = rootProject.POM_DESCRIPTION
-                url = rootProject.POM_URL
+                name = publishingProps['pom.name']
+                description = publishingProps['pom.description']
+                inceptionYear = publishingProps['pom.inceptionYear']
+                url = publishingProps['pom.url']
                 scm {
-                    connection = rootProject.POM_SCM_CONNECTION
-                    url = rootProject.POM_SCM_URL
+                    url = publishingProps['pom.scmUrl']
+                    connection = publishingProps['pom.scmConnection']
                 }
                 licenses {
                     license {
-                        name = rootProject.POM_LICENCE_NAME
-                        url = rootProject.POM_LICENCE_URL
+                        name = publishingProps['pom.licenceName']
+                        url = publishingProps['pom.licenceUrl']
                     }
                 }
                 developers {
                     developer {
-                        name = rootProject.POM_DEVELOPER_NAME
-                        url = rootProject.POM_DEVELOPER_URL
+                        name = publishingProps['pom.developerName']
+                        url = publishingProps['pom.developerUrl']
                     }
                 }
             }
@@ -79,20 +81,16 @@ publishing {
     }
     repositories {
         maven {
-            name = 'ossrh'
-            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
-            credentials {
-                username = ossrhUsername
-                password = ossrhPassword
-            }
+            url = uri(rootProject.layout.buildDirectory.dir("staging").get().asFile)
         }
     }
 }
 
 signing {
-    sign publishing.publications.mavenJava
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
+    useInMemoryPgpKeys(
+            publishingProps['signing.keyId'],
+            file(publishingProps['signing.secretKeyRingFile']).text,
+            publishingProps['signing.password']
+    )
+    sign publishing.publications
 }
