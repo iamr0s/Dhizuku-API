@@ -47,7 +47,7 @@ publishing {
     publications {
         mavenRelease(MavenPublication) {
             afterEvaluate {
-                from components.release
+                from components.findByName('release')
             }
 
             group = publishingProps['groupId']
@@ -86,10 +86,12 @@ publishing {
 }
 
 signing {
-    useInMemoryPgpKeys(
+    if (publishingFile.exists()) {
+        useInMemoryPgpKeys(
             publishingProps['signing.keyId'],
             file(publishingProps['signing.secretKeyRingFile']).text,
             publishingProps['signing.password']
-    )
+        )
+    }
     sign publishing.publications
 }
