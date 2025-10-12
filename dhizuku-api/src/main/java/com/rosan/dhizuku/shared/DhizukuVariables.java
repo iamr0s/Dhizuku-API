@@ -10,9 +10,15 @@ import java.util.Objects;
 public class DhizukuVariables {
     public static final String OFFICIAL_PACKAGE_NAME = "com.rosan.dhizuku";
 
+    public static final String PACKAGE_NAME = OFFICIAL_PACKAGE_NAME;
+
     public static final ComponentName OFFICIAL_COMPONENT_NAME = new ComponentName(OFFICIAL_PACKAGE_NAME, OFFICIAL_PACKAGE_NAME + ".server.DhizukuDAReceiver");
 
+    public static final ComponentName COMPONENT_NAME = OFFICIAL_COMPONENT_NAME;
+
     public static final String OFFICIAL_PERMISSION_API = OFFICIAL_PACKAGE_NAME + ".permission.API";
+
+    public static final String PERMISSION_API = OFFICIAL_PERMISSION_API;
 
     public static @NonNull String getProviderAuthorityName(String packageName) {
         if (Objects.equals(packageName, OFFICIAL_PACKAGE_NAME))
