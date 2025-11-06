@@ -87,10 +87,14 @@ publishing {
 
 signing {
     if (publishingFile.exists()) {
+        def privateKey = publishingProps['signing.privateKey']
+        if (privateKey == null) {
+            privateKey = file(publishingProps['signing.secretKeyRingFile']).text
+        }
         useInMemoryPgpKeys(
-            publishingProps['signing.keyId'],
-            file(publishingProps['signing.secretKeyRingFile']).text,
-            publishingProps['signing.password']
+                publishingProps['signing.keyId'],
+                privateKey,
+                publishingProps['signing.password']
         )
     }
     sign publishing.publications
