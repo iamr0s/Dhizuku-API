@@ -47,12 +47,10 @@ public class UserService extends IUserServiceManager.Stub {
                     Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
 
             Class<?> clazz = packageContext.getClassLoader().loadClass(component.getClassName());
-            Constructor<?> constructor = clazz.getConstructor();
             try {
-                constructor = clazz.getConstructor(Context.class);
-                service = (IBinder) constructor.newInstance(mContext);
+                service = (IBinder) clazz.getConstructor(Context.class).newInstance(mContext);
             } catch (NoSuchMethodException | SecurityException ignored) {
-                service = (IBinder) constructor.newInstance();
+                service = (IBinder) clazz.getConstructor().newInstance();
             }
             transact(service, 1);
             map.put(key, service);
