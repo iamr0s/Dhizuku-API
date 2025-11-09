@@ -63,7 +63,7 @@ public class UserServiceConnections {
 
     private void startInner(DhizukuUserServiceArgs args) {
         ComponentName component = new ComponentName(mContext, UserService.class);
-        IBinder binder = DhizukuProcess.get(mContext).startProcess(component, false);
+        IBinder binder = DhizukuProcess.get(mContext).isolatedServiceBinder(component, false);
         if (binder == null) return;
         IUserServiceManager manager = IUserServiceManager.Stub.asInterface(binder);
         try {

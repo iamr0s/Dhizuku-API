@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.rosan.app_process.AppProcess;
 
-public class DhizukuProcess extends AppProcess.Default {
+public class DhizukuProcess extends AppProcess.None {
     private DhizukuProcess(Context context) {
         init(context);
     }

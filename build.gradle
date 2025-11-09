@@ -8,5 +8,5 @@ ext {
     TARGET_SDK = 36
 
     API_VERSION = '2.5.4'
-    SERVER_API_VERSION = '0.0.7'
+    SERVER_API_VERSION = '0.0.8'
 }
