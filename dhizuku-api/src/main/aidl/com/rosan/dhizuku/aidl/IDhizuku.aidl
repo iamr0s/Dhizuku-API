@@ -20,6 +20,8 @@ interface IDhizuku {
 
     void unbindUserService(in Bundle bundle) = 13;
 
+    void unbindUserServiceByConnection(in IDhizukuUserServiceConnection connection, in Bundle bundle) = 14;
+
     String[] getDelegatedScopes(String packageName) = 15;
 
     void setDelegatedScopes(String packageName,in String[] scopes) = 16;

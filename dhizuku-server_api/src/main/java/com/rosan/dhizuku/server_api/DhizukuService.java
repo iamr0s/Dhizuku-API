@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -71,7 +72,7 @@ public abstract class DhizukuService extends IDhizuku.Stub {
 
     public boolean onRemoteTransact(IBinder binder, int code, Parcel data, Parcel reply, int flags) {
         enforceCallingPermission("remote_transact");
-        return DhizukuProcess.get(mContext).remoteTransact(binder, code, data, reply, flags);
+        return DhizukuProcess.get().remoteTransact(binder, code, data, reply, flags);
     }
 
     @Override
@@ -105,7 +106,7 @@ public abstract class DhizukuService extends IDhizuku.Stub {
                 environment.put(envstring.substring(0, sign),
                         envstring.substring(sign + 1));
         }
-        RemoteProcess process = new RemoteProcess(DhizukuProcess.get(mContext).remoteProcess(Arrays.asList(cmd), environment, dir));
+        RemoteProcess process = new RemoteProcess(DhizukuProcess.get().remoteProcess(Arrays.asList(cmd), environment, dir));
         mClient.asBinder().linkToDeath(() -> {
             try {
                 if (process.alive()) process.destroy();
@@ -122,7 +123,7 @@ public abstract class DhizukuService extends IDhizuku.Stub {
         int uid = Binder.getCallingUid();
         int pid = Binder.getCallingPid();
         DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(bundle);
-        UserServiceConnections.get(mContext).bind(uid, pid, args, connection);
+        UserServiceConnections.bind(uid, pid, args, connection);
     }
 
     @Override
@@ -132,7 +133,17 @@ public abstract class DhizukuService extends IDhizuku.Stub {
         int uid = Binder.getCallingUid();
         int pid = Binder.getCallingPid();
         DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(bundle);
-        UserServiceConnections.get(mContext).unbind(uid, pid, args);
+        UserServiceConnections.unbind(uid, pid, args);
+    }
+
+    @Override
+    public void unbindUserServiceByConnection(IDhizukuUserServiceConnection connection, Bundle bundle) throws RemoteException {
+        enforceCallingPermission("unbind_user_service");
+        if (bundle == null) return;
+        int uid = Binder.getCallingUid();
+        int pid = Binder.getCallingPid();
+        DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(bundle);
+        UserServiceConnections.unbind(uid, pid, args, connection);
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -53,7 +53,7 @@ public class UserService extends IUserServiceManager.Stub {
                 service = (IBinder) clazz.getConstructor().newInstance();
             }
             transact(service, 1);
-            map.put(key, service);
+             map.put(key, service);
             return service;
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
                  InvocationTargetException | RemoteException |

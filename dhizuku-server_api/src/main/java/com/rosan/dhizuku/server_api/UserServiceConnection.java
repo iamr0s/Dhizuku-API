@@ -1,7 +1,9 @@
 package com.rosan.dhizuku.server_api;
 
-import android.content.Context;
+import android.content.ComponentName;
 import android.os.IBinder;
+import android.os.RemoteException;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -10,101 +12,177 @@ import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class UserServiceConnection {
-    public static class UserServiceInfo {
-        private final @NonNull IUserServiceManager mManager;
+public final class UserServiceConnection {
+    private final List<IDhizukuUserServiceConnection> connections = new ArrayList<>();
 
-        private final @NonNull IBinder mService;
+    private IUserServiceManager mManager = null;
 
-        public UserServiceInfo(@NonNull IUserServiceManager manager, @NonNull IBinder service) {
-            mManager = manager;
-            mService = service;
-        }
+    private IBinder mService = null;
 
-        public @NonNull IUserServiceManager getManager() {
-            return mManager;
-        }
+    private final int mUid;
 
-        public @NonNull IBinder getService() {
-            return mService;
-        }
+    private final int mPid;
+
+    private final @NonNull DhizukuUserServiceArgs mArgs;
+
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    private boolean startRequested = false;
+
+    UserServiceConnection(int uid, int pid, @NonNull DhizukuUserServiceArgs args) {
+        this.mUid = uid;
+        this.mPid = pid;
+        this.mArgs = args;
     }
 
-    private Context mContext;
-
-    private int uid;
-
-    private int pid;
-
-    private final IBinder.DeathRecipient recipient = () -> UserServiceConnections.get(mContext).unbind(uid, pid);
-
-    private IDhizukuUserServiceConnection mConnection;
-
-    private final List<String> tokens = new ArrayList<>();
-
-    public UserServiceConnection(Context context,
-                                 int uid,
-                                 int pid,
-                                 IDhizukuUserServiceConnection connection) {
-        mContext = context;
-        this.uid = uid;
-        this.pid = pid;
-        mConnection = connection;
-        linkConnection();
-    }
-
-    public void setConnection(IDhizukuUserServiceConnection connection) {
-        try {
-            mConnection.asBinder().unlinkToDeath(recipient, 0);
-        } catch (Throwable ignored) {
-        }
-        mConnection = connection;
-        linkConnection();
-    }
-
-    private void linkConnection() {
-        try {
-            mConnection.asBinder().linkToDeath(recipient, 0);
-        } catch (Throwable ignored) {
-        }
-    }
-
-    public void register(@NonNull DhizukuUserServiceArgs args) {
-        synchronized (tokens) {
-            String token = args.getComponentName().flattenToShortString();
-            tokens.remove(token);
-            tokens.add(token);
-        }
-    }
-
-    public void unregister(@NonNull DhizukuUserServiceArgs args) {
-        synchronized (tokens) {
-            String token = args.getComponentName().flattenToShortString();
-            tokens.remove(token);
-        }
-    }
-
-    public boolean isRegister(String token) {
-        return tokens.contains(token);
-    }
-
-    public void connected(DhizukuUserServiceArgs args,
-                          UserServiceInfo info) {
-        synchronized (tokens) {
-            try {
-                mConnection.connected(args.build(), info.getService());
-            } catch (Throwable ignored) {
+    void connected(@NonNull IBinder service) {
+        synchronized (connections) {
+            for (IDhizukuUserServiceConnection connection : connections) {
+                try {
+                    connection.connected(this.mArgs.build(), service);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
-    public void died(DhizukuUserServiceArgs args) {
-        synchronized (tokens) {
-            try {
-                mConnection.died(args.build());
-            } catch (Throwable ignored) {
-            }
+    void start() {
+        synchronized (connections) {
+            this.startRequested = true;
+            bringUpService();
         }
+    }
+
+    void stop() {
+        synchronized (connections) {
+            this.startRequested = false;
+            asyncShutdownService();
+        }
+    }
+
+    void bind(IDhizukuUserServiceConnection connection) {
+        synchronized (connections) {
+            try {
+                // Auto unbind when the client dies
+                connection.asBinder().linkToDeath(() -> unbind(connection), 0);
+            } catch (RemoteException ignored) {
+                unbind(connection);
+                // bind failed, return directly
+                return;
+            }
+            connections.add(connection);
+
+            IBinder service = this.mService;
+            if (service != null && service.pingBinder()) {
+                // service is alive and is triggered directly
+                try {
+                    connection.connected(this.mArgs.build(), service);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                return;
+            }
+
+            bringUpService();
+        }
+    }
+
+    void unbind(IDhizukuUserServiceConnection connection) {
+        synchronized (connections) {
+            connections.remove(connection);
+            checkShutdownService();
+        }
+    }
+
+    void unbindAll() {
+        synchronized (connections) {
+            connections.clear();
+            checkShutdownService();
+        }
+    }
+
+    private void checkShutdownService() {
+        synchronized (connections) {
+            if (this.startRequested || !connections.isEmpty()) return;
+            UserServiceConnections.unbind(this.mUid, this.mPid, this.mArgs);
+            asyncShutdownService();
+        }
+    }
+
+    private void bringUpService() {
+        synchronized (connections) {
+            IBinder service = this.mService;
+            if (service != null && service.pingBinder()) {
+                // service is alive and is triggered directly
+                connected(service);
+                return;
+            }
+            this.mManager = null;
+            this.mService = null;
+            asyncBringUpService();
+        }
+    }
+
+    private void asyncBringUpService() {
+        executor.submit(() -> {
+            synchronized (connections) {
+                IUserServiceManager manager = this.mManager;
+                if (manager != null && manager.asBinder().pingBinder()) {
+                    return;
+                }
+            }
+
+            DhizukuProcess process = DhizukuProcess.get();
+            IBinder binder = process.isolatedServiceBinder(new ComponentName(process.getContext(), UserService.class));
+            if (binder == null) return;
+            IUserServiceManager manager = IUserServiceManager.Stub.asInterface(binder);
+            IBinder service = null;
+            try {
+                service = manager.startService(this.mArgs.getComponentName());
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            if (service == null) return;
+
+            try {
+                service.linkToDeath(() -> onServiceDeath(manager), 0);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            this.mManager = manager;
+            this.mService = service;
+            connected(service);
+        });
+    }
+
+    private void onServiceDeath(IUserServiceManager manager) {
+        synchronized (connections) {
+            if (this.mManager != manager) return;
+            this.mManager = null;
+            this.mService = null;
+            this.startRequested = false;
+            connections.clear();
+        }
+    }
+
+    private void asyncShutdownService() {
+        executor.submit(() -> {
+            IUserServiceManager manager = this.mManager;
+            if (manager == null) return;
+            // clean up first.
+            onServiceDeath(mManager);
+
+            try {
+                manager.quit();
+            } catch (RemoteException ignored) {
+                // maybe throw, DeadObjectException
+            }
+        });
     }
 }

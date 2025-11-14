@@ -8,16 +8,18 @@ import androidx.annotation.NonNull;
 import com.rosan.app_process.AppProcess;
 
 public class DhizukuProcess extends AppProcess.None {
-    private DhizukuProcess(Context context) {
-        init(context);
+    private DhizukuProcess() {
+        init();
+    }
+
+    public Context getContext() {
+        return this.mContext;
     }
 
     @SuppressLint("StaticFieldLeak")
-    private static DhizukuProcess mInstance;
+    private static final DhizukuProcess mInstance = new DhizukuProcess();
 
-    public static @NonNull DhizukuProcess get(Context context) {
-        if (mInstance != null) return mInstance;
-        mInstance = new DhizukuProcess(context);
+    public static @NonNull DhizukuProcess get() {
         return mInstance;
     }
 }
