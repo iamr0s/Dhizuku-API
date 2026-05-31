@@ -14,5 +14,4 @@
     </uses-policies>
     <!--suppress AndroidElementNotAllowed -->
     <support-transfer-ownership />
-    <headless-system-user headless-device-owner-mode="single_user" device-owner-mode="single_user" />
 </device-admin>
