@@ -1,8 +1,8 @@
 [versions]
-agp = "9.4.0"
-annotation = "1.10.0"
+agp = "9.4.1"
+annotation = "1.11.0"
 androidappprocess = "1.4.3"
-core = "1.19.0"
+core = "1.19.1"
 
 [plugins]
 agp-lib = { id = "com.android.library", version.ref = "agp" }
