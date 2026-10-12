@@ -18,7 +18,7 @@ public final class UserServiceConnections {
 
     static void bind(int uid, int pid, @NonNull DhizukuUserServiceArgs args, @NonNull IDhizukuUserServiceConnection connection) {
         synchronized (CACHE) {
-            CACHE.computeIfAbsent(requireToken(uid, pid, args), (token) -> new UserServiceConnection(pid, uid, args))
+            CACHE.computeIfAbsent(requireToken(uid, pid, args), (token) -> new UserServiceConnection(uid, pid, args))
                     .bind(connection);
         }
     }
