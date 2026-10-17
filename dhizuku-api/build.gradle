@@ -12,11 +12,11 @@ if (publishingFile.exists()) {
 
 android {
     namespace = 'com.rosan.dhizuku.api'
-    compileSdk = TARGET_SDK
+    compileSdk = rootProject.ext.TARGET_SDK
 
     defaultConfig {
-        minSdk = MIN_SDK
-        targetSdk = TARGET_SDK
+        minSdk = rootProject.ext.MIN_SDK
+        targetSdk = rootProject.ext.TARGET_SDK
 
         consumerProguardFiles 'consumer-rules.pro'
     }
@@ -52,7 +52,7 @@ publishing {
 
             group = publishingProps['groupId']
             artifactId = publishingProps['api.artifactId']
-            version = CLIENT_API_VERSION
+            version = rootProject.ext.CLIENT_API_VERSION
 
             pom {
                 name = publishingProps['pom.name']

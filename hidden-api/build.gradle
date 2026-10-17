@@ -4,10 +4,10 @@ plugins {
 
 android {
     namespace = "com.rosan.hidden_api"
-    compileSdk = TARGET_SDK
+    compileSdk = rootProject.ext.TARGET_SDK
 
     defaultConfig {
-        minSdk = MIN_SDK
+        minSdk = rootProject.ext.MIN_SDK
     }
 
     compileOptions {
