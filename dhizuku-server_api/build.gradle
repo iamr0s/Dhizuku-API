@@ -17,10 +17,14 @@ android {
     defaultConfig {
         minSdk = MIN_SDK
         targetSdk = TARGET_SDK
+
+        buildConfigField 'String', 'SERVICE_VERSION_NAME', "\"${SERVER_API_VERSION}\""
+
+        consumerProguardFiles 'consumer-rules.pro'
     }
 
     buildFeatures {
-        buildConfig = false
+        buildConfig = true
         aidl = true
     }
 
@@ -40,7 +44,6 @@ android {
 dependencies {
     implementation(libs.appprocess)
     api project(':Dhizuku-API')
-    compileOnly(libs.annotation)
     compileOnly project(':hidden-api')
 }
 
@@ -97,6 +100,6 @@ signing {
                 privateKey,
                 publishingProps['signing.password']
         )
+        sign publishing.publications
     }
-    sign publishing.publications
 }

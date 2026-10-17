@@ -17,10 +17,12 @@ android {
     defaultConfig {
         minSdk = MIN_SDK
         targetSdk = TARGET_SDK
+
+        consumerProguardFiles 'consumer-rules.pro'
     }
 
     buildFeatures {
-        buildConfig = false
+        buildConfig = true
         aidl = true
     }
 
@@ -38,8 +40,6 @@ android {
 }
 
 dependencies {
-    compileOnly(libs.annotation)
-    compileOnly(libs.core)
     compileOnly project(':hidden-api')
 }
 
@@ -52,7 +52,7 @@ publishing {
 
             group = publishingProps['groupId']
             artifactId = publishingProps['api.artifactId']
-            version = API_VERSION
+            version = CLIENT_API_VERSION
 
             pom {
                 name = publishingProps['pom.name']
@@ -96,6 +96,6 @@ signing {
                 privateKey,
                 publishingProps['signing.password']
         )
+        sign publishing.publications
     }
-    sign publishing.publications
 }

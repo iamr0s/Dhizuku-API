@@ -19,7 +19,3 @@ android {
         abortOnError = false
     }
 }
-
-dependencies {
-    compileOnly(libs.annotation)
-}

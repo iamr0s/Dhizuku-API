@@ -1,5 +1,6 @@
 # Gradle
 /.gradle/
+/gradle/gradle-daemon-jvm.properties
 # Android SDK
 /local.properties
 # Gradle Build
@@ -10,5 +11,7 @@
 /.idea/
 # VS Code
 /.vscode/
+# macOS
+.DS_Store
 # Keystore
 /keystore/

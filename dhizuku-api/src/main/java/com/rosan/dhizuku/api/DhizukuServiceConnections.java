@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import androidx.annotation.NonNull;
-
 import com.rosan.dhizuku.aidl.IDhizuku;
 import com.rosan.dhizuku.aidl.IDhizukuUserServiceConnection;
 
@@ -22,10 +20,6 @@ class DhizukuServiceConnections {
         @Override
         public void connected(Bundle bundle, IBinder service) {
             onServiceConnected(bundle, service);
-            try {
-                service.linkToDeath(() -> died(bundle), 0);
-            } catch (RemoteException ignored) {
-            }
         }
 
         void onServiceConnected(Bundle bundle, IBinder service) {
@@ -33,9 +27,19 @@ class DhizukuServiceConnections {
             ComponentName name = args.getComponentName();
             String token = name.flattenToString();
             DhizukuServiceConnection serviceConnection;
+            boolean linkDeath;
             synchronized (map) {
-                services.put(token, service);
+                IBinder previous = services.put(token, service);
                 serviceConnection = map.get(token);
+                // connected() is invoked again for every new client connection,
+                // only register a death recipient for a genuinely new binder
+                linkDeath = previous != service;
+            }
+            if (linkDeath) {
+                try {
+                    service.linkToDeath(() -> died(bundle), 0);
+                } catch (RemoteException ignored) {
+                }
             }
             if (serviceConnection == null) return;
             serviceConnection.onServiceConnected(name, service);
@@ -60,34 +64,53 @@ class DhizukuServiceConnections {
 
     private static final Map<String, IBinder> services = new HashMap<>();
 
-    static void start(@NonNull IDhizuku dhizuku, @NonNull DhizukuUserServiceArgs args) throws RemoteException {
-        ComponentName name = args.getComponentName();
-        String token = name.flattenToString();
-        IBinder service;
+    /**
+     * @return the cached service binder, or null when it is absent or dead
+     * (e.g. the Dhizuku server app restarted).
+     */
+    private static IBinder aliveService(String token) {
         synchronized (map) {
-            service = services.get(token);
+            IBinder service = services.get(token);
+            if (service != null && !service.pingBinder()) {
+                services.remove(token);
+                return null;
+            }
+            return service;
         }
-        if (service == null) dhizuku.bindUserService(iDhizukuUserServiceConnection, args.build());
     }
 
-    static void stop(@NonNull IDhizuku dhizuku, @NonNull DhizukuUserServiceArgs args) throws RemoteException {
+    static void start(IDhizuku dhizuku, DhizukuUserServiceArgs args) throws RemoteException {
+        ComponentName name = args.getComponentName();
+        String token = name.flattenToString();
+        if (aliveService(token) == null) dhizuku.bindUserService(iDhizukuUserServiceConnection, args.build());
+    }
+
+    static void stop(IDhizuku dhizuku, DhizukuUserServiceArgs args) throws RemoteException {
         dhizuku.unbindUserService(args.build());
     }
 
-    static void bind(@NonNull IDhizuku dhizuku, @NonNull DhizukuUserServiceArgs args, @NonNull ServiceConnection connection) throws RemoteException {
+    static void bind(IDhizuku dhizuku, DhizukuUserServiceArgs args, ServiceConnection connection) throws RemoteException {
         ComponentName name = args.getComponentName();
         String token = name.flattenToString();
         IBinder service;
         synchronized (map) {
-            DhizukuServiceConnection serviceConnection = map.computeIfAbsent(token, key -> new DhizukuServiceConnection());
+            DhizukuServiceConnection serviceConnection = map.get(token);
+            if (serviceConnection == null) {
+                serviceConnection = new DhizukuServiceConnection();
+                map.put(token, serviceConnection);
+            }
             serviceConnection.add(connection);
             service = services.get(token);
+            if (service != null && !service.pingBinder()) {
+                services.remove(token);
+                service = null;
+            }
         }
         if (service == null) dhizuku.bindUserService(iDhizukuUserServiceConnection, args.build());
         else connection.onServiceConnected(name, service);
     }
 
-    static void unbind(@NonNull IDhizuku dhizuku, @NonNull ServiceConnection connection) throws RemoteException {
+    static void unbind(IDhizuku dhizuku, ServiceConnection connection) throws RemoteException {
         List<String> tokens = new ArrayList<>();
         synchronized (map) {
             for (Map.Entry<String, DhizukuServiceConnection> entry : map.entrySet()) {
@@ -105,6 +128,10 @@ class DhizukuServiceConnections {
             }
         }
         for (String token : tokens) {
+            synchronized (map) {
+                map.remove(token);
+                services.remove(token);
+            }
             ComponentName name = ComponentName.unflattenFromString(token);
             DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(name);
             stop(dhizuku, args);

@@ -2,6 +2,7 @@ package com.rosan.dhizuku.aidl;
 
 import android.os.Bundle;
 
+import com.rosan.dhizuku.aidl.IDhizukuLockTaskModeListener;
 import com.rosan.dhizuku.aidl.IDhizukuRemoteProcess;
 import com.rosan.dhizuku.aidl.IDhizukuUserServiceConnection;
 
@@ -25,4 +26,8 @@ interface IDhizuku {
     String[] getDelegatedScopes(String packageName) = 15;
 
     void setDelegatedScopes(String packageName,in String[] scopes) = 16;
+
+    void addLockTaskModeListener(in IDhizukuLockTaskModeListener listener) = 17;
+
+    void removeLockTaskModeListener(in IDhizukuLockTaskModeListener listener) = 18;
 }

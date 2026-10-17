@@ -3,8 +3,6 @@ package com.rosan.dhizuku.shared;
 import android.content.ComponentName;
 import android.os.Binder;
 
-import androidx.annotation.NonNull;
-
 import java.util.Objects;
 
 public class DhizukuVariables {
@@ -20,13 +18,13 @@ public class DhizukuVariables {
 
     public static final String PERMISSION_API = OFFICIAL_PERMISSION_API;
 
-    public static @NonNull String getProviderAuthorityName(String packageName) {
+    public static String getProviderAuthorityName(String packageName) {
         if (Objects.equals(packageName, OFFICIAL_PACKAGE_NAME))
             return OFFICIAL_PACKAGE_NAME + ".server.provider";
         else return packageName + ".dhizuku_server.provider";
     }
 
-    public static @NonNull String getActionRequestPermission(String packageName) {
+    public static String getActionRequestPermission(String packageName) {
         if (Objects.equals(packageName, OFFICIAL_PACKAGE_NAME))
             return OFFICIAL_PACKAGE_NAME + ".action.request.permission";
         else return packageName + ".action.REQUEST_DHIZUKU_PERMISSION";

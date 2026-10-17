@@ -3,8 +3,6 @@ package com.rosan.dhizuku.server_api;
 import android.annotation.SuppressLint;
 import android.content.Context;
 
-import androidx.annotation.NonNull;
-
 import com.rosan.app_process.AppProcess;
 
 public class DhizukuProcess extends AppProcess.None {
@@ -19,7 +17,7 @@ public class DhizukuProcess extends AppProcess.None {
     @SuppressLint("StaticFieldLeak")
     private static final DhizukuProcess mInstance = new DhizukuProcess();
 
-    public static @NonNull DhizukuProcess get() {
+    public static DhizukuProcess get() {
         return mInstance;
     }
 }

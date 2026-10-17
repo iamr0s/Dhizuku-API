@@ -8,10 +8,6 @@ import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
 
-import androidx.annotation.Keep;
-import androidx.annotation.NonNull;
-
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,7 +17,6 @@ public class UserService extends IUserServiceManager.Stub {
 
     private final ConcurrentHashMap<String, IBinder> map = new ConcurrentHashMap<>();
 
-    @Keep
     public UserService(Context context) {
         mContext = context;
     }
@@ -34,10 +29,8 @@ public class UserService extends IUserServiceManager.Stub {
         System.exit(0);
     }
 
-    /** @noinspection RedundantSuppression*/
-    @SuppressWarnings("deprecation")
     @Override
-    public IBinder startService(@NonNull ComponentName component) {
+    public IBinder startService(ComponentName component) {
         String key = component.flattenToShortString();
         IBinder service = map.get(key);
         if (service != null) return service;
@@ -62,7 +55,7 @@ public class UserService extends IUserServiceManager.Stub {
         return null;
     }
 
-    private void transact(@NonNull IBinder service, int code) throws RemoteException {
+    private void transact(IBinder service, int code) throws RemoteException {
         Parcel data = Parcel.obtain();
         Parcel reply = Parcel.obtain();
         try {

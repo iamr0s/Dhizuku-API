@@ -1,7 +1,5 @@
 package com.rosan.dhizuku.server_api;
 
-import androidx.annotation.NonNull;
-
 import com.rosan.dhizuku.aidl.IDhizukuUserServiceConnection;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 
@@ -16,44 +14,56 @@ public final class UserServiceConnections {
         return uid + ":" + pid + "{" + args.flattenToShortString() + "}";
     }
 
-    static void bind(int uid, int pid, @NonNull DhizukuUserServiceArgs args, @NonNull IDhizukuUserServiceConnection connection) {
+    static UserServiceConnection require(int uid, int pid, DhizukuUserServiceArgs args) {
         synchronized (CACHE) {
-            CACHE.computeIfAbsent(requireToken(uid, pid, args), (token) -> new UserServiceConnection(uid, pid, args))
-                    .bind(connection);
+            String token = requireToken(uid, pid, args);
+            UserServiceConnection userServiceConnection = CACHE.get(token);
+            if (userServiceConnection == null) {
+                userServiceConnection = new UserServiceConnection(uid, pid, args);
+                CACHE.put(token, userServiceConnection);
+            }
+            return userServiceConnection;
         }
     }
 
-    static void unbind(int uid, int pid, @NonNull DhizukuUserServiceArgs args) {
+    static UserServiceConnection get(int uid, int pid, DhizukuUserServiceArgs args) {
         synchronized (CACHE) {
-            CACHE.computeIfPresent(requireToken(uid, pid, args), (token, userServiceConnection) -> {
-                userServiceConnection.unbindAll();
-                return null;
-            });
+            return CACHE.get(requireToken(uid, pid, args));
         }
     }
 
-    static void unbind(int uid, int pid, @NonNull DhizukuUserServiceArgs args, @NonNull IDhizukuUserServiceConnection connection) {
+    static void removeToken(int uid, int pid, DhizukuUserServiceArgs args) {
         synchronized (CACHE) {
-            CACHE.computeIfPresent(requireToken(uid, pid, args), (token, userServiceConnection) -> {
-                userServiceConnection.unbind(connection);
-                return userServiceConnection;
-            });
+            CACHE.remove(requireToken(uid, pid, args));
         }
     }
 
-    static void start(int uid, int pid, @NonNull DhizukuUserServiceArgs args) {
-        synchronized (CACHE) {
-            CACHE.computeIfAbsent(requireToken(uid, pid, args), (token) -> new UserServiceConnection(uid, pid, args))
-                    .start();
-        }
+    static void bind(int uid, int pid, DhizukuUserServiceArgs args, IDhizukuUserServiceConnection connection) {
+        require(uid, pid, args).bind(connection);
     }
 
-    static void stop(int uid, int pid, @NonNull DhizukuUserServiceArgs args) {
+    static void unbind(int uid, int pid, DhizukuUserServiceArgs args) {
+        UserServiceConnection userServiceConnection;
         synchronized (CACHE) {
-            CACHE.computeIfPresent(requireToken(uid, pid, args), (token, userServiceConnection) -> {
-                userServiceConnection.stop();
-                return userServiceConnection;
-            });
+            userServiceConnection = CACHE.remove(requireToken(uid, pid, args));
         }
+        if (userServiceConnection != null) userServiceConnection.unbindAll();
+    }
+
+    static void unbind(int uid, int pid, DhizukuUserServiceArgs args, IDhizukuUserServiceConnection connection) {
+        UserServiceConnection userServiceConnection = get(uid, pid, args);
+        if (userServiceConnection != null) userServiceConnection.unbind(connection);
+    }
+
+    static void start(int uid, int pid, DhizukuUserServiceArgs args) {
+        require(uid, pid, args).start();
+    }
+
+    static void stop(int uid, int pid, DhizukuUserServiceArgs args) {
+        UserServiceConnection userServiceConnection;
+        synchronized (CACHE) {
+            userServiceConnection = CACHE.remove(requireToken(uid, pid, args));
+        }
+        if (userServiceConnection != null) userServiceConnection.stop();
     }
 }

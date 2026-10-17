@@ -2,9 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="com.rosan.dhizuku.permission.API" />
     <queries>
+        <!-- The official Dhizuku server package: its provider and permission activity
+             must be visible on Android 11+ for init()/requestPermission() to work. -->
+        <package android:name="com.rosan.dhizuku" />
         <provider android:authorities="com.rosan.dhizuku.server.provider" />
         <intent>
             <action android:name="com.rosan.dhizuku.server.provider" />
+        </intent>
+        <intent>
+            <action android:name="com.rosan.dhizuku.action.request.permission" />
         </intent>
     </queries>
 </manifest>

@@ -66,38 +66,3 @@ Dhizuku.requestPermission(new DhizukuRequestPermissionListener() {
     }
 });
 ```
-
-## サービスのアンバインド
-
-**Dhizuku v2.9** 以降では、自動でサービスのアンバインドが行われなくなった為、処理の終了時に手動でサービスのストップとアンバインドを行う必要があります。  
-この終了処理を行わなかった場合、毎回 **Dhizuku** アプリから手動でサーバーを再起動しない限り、`DeadObjectException` が発生し続けます。
-
-下記の例では、`UserService` が、Dhizuku にバインドするクラス、`IUserService` が、それの **AIDL** とします。
-
-```Java
-IUserService mUserService = null;
-DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(new ComponentName(this, UserService.class));
-ServiceConnection connection = new ServiceConnection() {
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder iBinder) {
-        mUserService = IUserService.Stub.asInterface(iBinder);
-        makeText("UserService に接続しました");
-    }
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-        makeText("UserService から切断されました");
-    }
-};
-
-// 実行権限の確認...
-
-// 処理の開始
-Dhizuku.init();
-Dhizuku.bindUserService(args, connection);
-
-// (m)UserService を用いた処理...
-
-// 処理の終了
-Dhizuku.stopUserService(args);
-Dhizuku.unbindUserService(connection);
-```

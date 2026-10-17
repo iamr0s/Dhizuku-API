@@ -3,9 +3,6 @@ package com.rosan.dhizuku.server_api;
 import android.content.ComponentName;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
 
 import com.rosan.dhizuku.aidl.IDhizukuUserServiceConnection;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
@@ -26,19 +23,19 @@ public final class UserServiceConnection {
 
     private final int mPid;
 
-    private final @NonNull DhizukuUserServiceArgs mArgs;
+    private final DhizukuUserServiceArgs mArgs;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private boolean startRequested = false;
 
-    UserServiceConnection(int uid, int pid, @NonNull DhizukuUserServiceArgs args) {
+    UserServiceConnection(int uid, int pid, DhizukuUserServiceArgs args) {
         this.mUid = uid;
         this.mPid = pid;
         this.mArgs = args;
     }
 
-    void connected(@NonNull IBinder service) {
+    void connected(IBinder service) {
         synchronized (connections) {
             for (IDhizukuUserServiceConnection connection : connections) {
                 try {
@@ -108,9 +105,9 @@ public final class UserServiceConnection {
     private void checkShutdownService() {
         synchronized (connections) {
             if (this.startRequested || !connections.isEmpty()) return;
-            UserServiceConnections.unbind(this.mUid, this.mPid, this.mArgs);
-            asyncShutdownService();
         }
+        UserServiceConnections.removeToken(this.mUid, this.mPid, this.mArgs);
+        asyncShutdownService();
     }
 
     private void bringUpService() {
@@ -173,16 +170,22 @@ public final class UserServiceConnection {
 
     private void asyncShutdownService() {
         executor.submit(() -> {
-            IUserServiceManager manager = this.mManager;
-            if (manager == null) return;
-            // clean up first.
-            onServiceDeath(mManager);
-
-            try {
-                manager.quit();
-            } catch (RemoteException ignored) {
-                // maybe throw, DeadObjectException
+            IUserServiceManager manager;
+            synchronized (connections) {
+                manager = this.mManager;
+                this.mManager = null;
+                this.mService = null;
+                this.startRequested = false;
+                connections.clear();
             }
+            if (manager != null) {
+                try {
+                    manager.quit();
+                } catch (RemoteException ignored) {
+                    // maybe throw, DeadObjectException
+                }
+            }
+            executor.shutdown();
         });
     }
 }

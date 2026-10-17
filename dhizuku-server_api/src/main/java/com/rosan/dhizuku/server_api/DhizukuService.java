@@ -1,5 +1,6 @@
 package com.rosan.dhizuku.server_api;
 
+import android.annotation.TargetApi;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -9,22 +10,20 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.rosan.dhizuku.aidl.IDhizuku;
 import com.rosan.dhizuku.aidl.IDhizukuClient;
+import com.rosan.dhizuku.aidl.IDhizukuLockTaskModeListener;
 import com.rosan.dhizuku.aidl.IDhizukuRemoteProcess;
 import com.rosan.dhizuku.aidl.IDhizukuUserServiceConnection;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
 import com.rosan.dhizuku.shared.DhizukuVariables;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 
-@SuppressWarnings("RedundantThrows")
 public abstract class DhizukuService extends IDhizuku.Stub {
     protected Context mContext;
 
@@ -34,16 +33,49 @@ public abstract class DhizukuService extends IDhizuku.Stub {
 
     protected IDhizukuClient mClient;
 
-    public DhizukuService(@NonNull Context context, ComponentName admin, IDhizukuClient client) {
+    /** Remote processes handed out to the current client, guarded by itself. */
+    private final List<RemoteProcess> mProcesses = new ArrayList<>();
+
+    public DhizukuService(Context context, ComponentName admin, IDhizukuClient client) {
         mContext = context;
         mManager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
         mAdmin = admin;
         mClient = client;
+        try {
+            // registered once: destroy every remote process when the client dies
+            if (client != null) client.asBinder().linkToDeath(this::destroyProcesses, 0);
+        } catch (RemoteException ignored) {
+            // client already dead, nothing was started yet
+        }
+    }
+
+    private void destroyProcesses() {
+        List<RemoteProcess> processes;
+        synchronized (mProcesses) {
+            processes = new ArrayList<>(mProcesses);
+            mProcesses.clear();
+        }
+        for (RemoteProcess process : processes) {
+            try {
+                if (process.alive()) process.destroy();
+            } catch (Throwable ignored) {
+            }
+        }
     }
 
     @Override
     public int getVersionCode() {
         return Variables.SERVICE_VERSION_CODE;
+    }
+
+    /**
+     * Returns the version name of the Dhizuku Server API, the human-readable
+     * counterpart of {@link #getVersionCode()} which returns the protocol
+     * version used for feature detection.
+     */
+    @Override
+    public String getVersionName() {
+        return Variables.SERVICE_VERSION_NAME;
     }
 
     public boolean isPermissionGranted() {
@@ -107,12 +139,9 @@ public abstract class DhizukuService extends IDhizuku.Stub {
                         envstring.substring(sign + 1));
         }
         RemoteProcess process = new RemoteProcess(DhizukuProcess.get().remoteProcess(Arrays.asList(cmd), environment, dir));
-        mClient.asBinder().linkToDeath(() -> {
-            try {
-                if (process.alive()) process.destroy();
-            } catch (Throwable ignored) {
-            }
-        }, 0);
+        synchronized (mProcesses) {
+            mProcesses.add(process);
+        }
         return process;
     }
 
@@ -146,17 +175,29 @@ public abstract class DhizukuService extends IDhizuku.Stub {
         UserServiceConnections.unbind(uid, pid, args, connection);
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @TargetApi(Build.VERSION_CODES.O)
     @Override
     public String[] getDelegatedScopes(String packageName) throws RemoteException {
         enforceCallingPermission("get_delegated_scopes");
         return mManager.getDelegatedScopes(mAdmin, packageName).toArray(new String[0]);
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @TargetApi(Build.VERSION_CODES.O)
     @Override
     public void setDelegatedScopes(String packageName, String[] scopes) throws RemoteException {
         enforceCallingPermission("set_delegated_scopes");
         mManager.setDelegatedScopes(mAdmin, packageName, Arrays.asList(scopes));
+    }
+
+    @Override
+    public void addLockTaskModeListener(IDhizukuLockTaskModeListener listener) throws RemoteException {
+        enforceCallingPermission("lock_task_mode_listener");
+        LockTaskModeListeners.add(listener);
+    }
+
+    @Override
+    public void removeLockTaskModeListener(IDhizukuLockTaskModeListener listener) throws RemoteException {
+        enforceCallingPermission("lock_task_mode_listener");
+        LockTaskModeListeners.remove(listener);
     }
 }

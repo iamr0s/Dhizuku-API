@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     paths-ignore:
-      - '*.md'
+      - 'docs/**'
   pull_request:
   workflow_dispatch:
 
@@ -14,30 +14,40 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: 21
+          java-version: 25
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Set environment
         run: |
           {
             echo "repo=$(echo ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/})"
-            echo "version=v$(grep apiArtifactVersion build.gradle| awk -F\" '{print $2}')"
             echo "commit=$(echo ${{ github.sha }} | cut -c-7)"
+            echo "client=$(grep CLIENT_API_VERSION build.gradle | awk -F\' '{print $2}')"
+            echo "server=$(grep SERVER_API_VERSION build.gradle | awk -F\' '{print $2}')"
           } >> $GITHUB_ENV
 
       - name: Build
-        run: ./gradlew --no-daemon --warning-mode=all assembleDebug
+        run: |
+          ./gradlew --no-daemon --warning-mode=all assembleDebug
+          cp dhizuku-server_api/build/outputs/aar/Dhizuku-SERVER_API-debug.aar ${{ env.repo }}_SERVER-${{ env.server }}@${{ env.commit }}.aar
+          cp dhizuku-api/build/outputs/aar/Dhizuku-API-debug.aar ${{ env.repo }}_CLIENT-${{ env.client }}@${{ env.commit }}.aar
 
-      - name: Upload
-        uses: actions/upload-artifact@v4
+      - name: Upload (Server)
+        uses: actions/upload-artifact@v7
         with:
-          name: "${{ env.repo }}-${{ env.version }}@${{ env.commit }}"
-          path: "*/build/outputs/aar/*.aar"
+          archive: false
+          path: "${{ env.repo }}_SERVER-${{ env.server }}@${{ env.commit }}.aar"
+
+      - name: Upload (Client)
+        uses: actions/upload-artifact@v7
+        with:
+          archive: false
+          path: "${{ env.repo }}_CLIENT-${{ env.client }}@${{ env.commit }}.aar"

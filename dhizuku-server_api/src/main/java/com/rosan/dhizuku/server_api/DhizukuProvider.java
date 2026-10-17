@@ -7,9 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.rosan.dhizuku.aidl.IDhizukuClient;
 import com.rosan.dhizuku.shared.DhizukuVariables;
 
@@ -19,40 +16,36 @@ public abstract class DhizukuProvider extends ContentProvider {
         return true;
     }
 
-    @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public String getType(@NonNull Uri uri) {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         return null;
     }
 
     @Override
-    public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+    public String getType(Uri uri) {
+        return null;
+    }
+
+    @Override
+    public Uri insert(Uri uri, ContentValues values) {
+        return null;
+    }
+
+    @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
         return 0;
     }
 
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         return 0;
     }
 
     public abstract DhizukuService onCreateService(IDhizukuClient client);
 
-    @Nullable
     @Override
-    public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
-        if (!method.equals(DhizukuVariables.PROVIDER_METHOD_CLIENT)
+    public Bundle call(String method, String arg, Bundle extras) {
+        if (!DhizukuVariables.PROVIDER_METHOD_CLIENT.equals(method)
                 || extras == null)
             return null;
         IBinder binder = extras.getBinder(DhizukuVariables.EXTRA_CLIENT);

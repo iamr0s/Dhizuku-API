@@ -11,15 +11,10 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.rosan.dhizuku.aidl.IDhizuku;
 import com.rosan.dhizuku.shared.DhizukuVariables;
@@ -27,25 +22,23 @@ import com.rosan.dhizuku.shared.DhizukuVariables;
 import java.io.File;
 import java.util.List;
 
-@SuppressWarnings("unused")
 public class Dhizuku {
-    @SuppressLint("StaticFieldLeak")
+
     private static volatile Context mContext = null;
 
-    @SuppressLint("StaticFieldLeak")
     private static volatile ComponentName mOwnerComponent;
 
     private static volatile IDhizuku remote = null;
 
-    public static @Nullable ComponentName getOwnerComponent(@NonNull Context context) {
+    public static ComponentName getOwnerComponent(Context context) {
         DevicePolicyManager manager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
         return getOwnerComponent(manager);
     }
 
-    public static @Nullable ComponentName getOwnerComponent(@NonNull DevicePolicyManager manager) {
+    public static ComponentName getOwnerComponent(DevicePolicyManager manager) {
         ComponentName component = null;
         List<ComponentName> admins = manager.getActiveAdmins();
-        if (admins == null) //noinspection ConstantValue
+        if (admins == null)
             return component;
         for (ComponentName admin : admins) {
             String packageName = admin.getPackageName();
@@ -72,7 +65,7 @@ public class Dhizuku {
      * @param context Context of this application that support ContentProvider request.
      * @return If binder is received. (If not, maybe (Dhizuku not working / Dhizuku not active / Dhizuku not installed))
      */
-    public static boolean init(@NonNull Context context) {
+    public static boolean init(Context context) {
         DevicePolicyManager manager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
         IDhizuku server = remote;
         if (server != null && server.asBinder().pingBinder()) {
@@ -94,7 +87,6 @@ public class Dhizuku {
         try {
             bundle = context.getContentResolver().call(uri, DhizukuVariables.PROVIDER_METHOD_CLIENT, null, extras);
         } catch (Exception e) {
-            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             return false;
         }
@@ -109,14 +101,13 @@ public class Dhizuku {
                 remote = null;
             }, 0);
         } catch (RemoteException e) {
-            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         mContext = context;
         return true;
     }
 
-    private static @NonNull IDhizuku requireServer() {
+    private static IDhizuku requireServer() {
         IDhizuku server = remote;
         if (server != null && server.asBinder().pingBinder()) return server;
         Context context = mContext;
@@ -125,6 +116,22 @@ public class Dhizuku {
             if (server != null) return server;
         }
         throw new IllegalStateException("binder haven't been received");
+    }
+
+    /**
+     * The first server api version that ships
+     * {@link #addLockTaskModeListener(DhizukuLockTaskModeListener)}.
+     */
+    private static final int MIN_SERVER_VERSION_LOCK_TASK_LISTENER = 8;
+
+    /**
+     * Throw when the connected server predates the requested feature.
+     */
+    private static void requireServerVersion(int minVersion, String feature) {
+        int version = getVersionCode();
+        if (version < minVersion)
+            throw new UnsupportedOperationException(feature + " requires Dhizuku Server API version "
+                    + minVersion + " or newer, but the server is version " + version);
     }
 
     /**
@@ -141,9 +148,10 @@ public class Dhizuku {
     }
 
     /**
-     * get the version name of Dhizuku Server.
+     * get the version name of Dhizuku Server API, a human-readable counterpart
+     * of {@link #getVersionCode()}.
      *
-     * @return server version name
+     * @return server api version name
      */
     public static String getVersionName() {
         try {
@@ -153,11 +161,11 @@ public class Dhizuku {
         }
     }
 
-    public static @NonNull String getOwnerPackageName() {
+    public static String getOwnerPackageName() {
         return getOwnerComponent().getPackageName();
     }
 
-    public static @NonNull ComponentName getOwnerComponent() {
+    public static ComponentName getOwnerComponent() {
         ComponentName component = mOwnerComponent;
         if (component == null) throw new IllegalStateException("owner component haven't been received");
         return component;
@@ -180,10 +188,12 @@ public class Dhizuku {
      * request the permission that can use privileged method.
      */
     public static void requestPermission(DhizukuRequestPermissionListener listener) {
-        requestPermission(mContext, listener);
+        Context context = mContext;
+        if (context == null) throw new IllegalStateException("Dhizuku.init(context) must be called first");
+        requestPermission(context, listener);
     }
 
-    private static void requestPermission(@NonNull Context context, @NonNull DhizukuRequestPermissionListener listener) {
+    private static void requestPermission(Context context, DhizukuRequestPermissionListener listener) {
         Bundle bundle = new Bundle();
         bundle.putInt(DhizukuVariables.PARAM_CLIENT_UID, context.getApplicationInfo().uid);
         bundle.putBinder(DhizukuVariables.PARAM_CLIENT_REQUEST_PERMISSION_BINDER, listener.asBinder());
@@ -232,14 +242,14 @@ public class Dhizuku {
     /**
      * Wrap the binder so that all transacts are requested by a remote server.
      */
-    public static @NonNull IBinder binderWrapper(IBinder iBinder) {
+    public static IBinder binderWrapper(IBinder iBinder) {
         return new DhizukuBinderWrapper(iBinder);
     }
 
     /**
      * create a process that work in remote server.
      */
-    public static @NonNull DhizukuRemoteProcess newProcess(String[] cmd, String[] env, File dir) {
+    public static DhizukuRemoteProcess newProcess(String[] cmd, String[] env, File dir) {
         try {
             return new DhizukuRemoteProcess(requireServer().remoteProcess(cmd, env, dir != null ? dir.getPath() : null));
         } catch (RemoteException e) {
@@ -249,57 +259,58 @@ public class Dhizuku {
 
     /**
      * start a UserService.
+     *
+     * @throws RuntimeException if the server is unreachable.
      */
-    public static void startUserService(@NonNull DhizukuUserServiceArgs args) {
+    public static void startUserService(DhizukuUserServiceArgs args) {
         try {
             DhizukuServiceConnections.start(requireServer(), args);
         } catch (RemoteException e) {
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     /**
      * stop a UserService.
+     *
+     * @throws RuntimeException if the server is unreachable.
      */
-    public static void stopUserService(@NonNull DhizukuUserServiceArgs args) {
+    public static void stopUserService(DhizukuUserServiceArgs args) {
         try {
             DhizukuServiceConnections.stop(requireServer(), args);
         } catch (RemoteException e) {
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     /**
      * bind a UserService.
+     *
+     * @throws RuntimeException if the server is unreachable.
      */
-    public static boolean bindUserService(@NonNull DhizukuUserServiceArgs args, @NonNull ServiceConnection connection) {
+    public static boolean bindUserService(DhizukuUserServiceArgs args, ServiceConnection connection) {
         try {
             DhizukuServiceConnections.bind(requireServer(), args, connection);
             return true;
         } catch (RemoteException e) {
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
-            return false;
+            throw new RuntimeException(e);
         }
     }
 
     /**
      * unbind a UserService.
+     *
+     * @throws RuntimeException if the server is unreachable.
      */
-    public static boolean unbindUserService(@NonNull ServiceConnection connection) {
+    public static boolean unbindUserService(ServiceConnection connection) {
         try {
             DhizukuServiceConnections.unbind(requireServer(), connection);
             return true;
         } catch (RemoteException e) {
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
-            return false;
+            throw new RuntimeException(e);
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     public static String[] getDelegatedScopes() {
         try {
             return requireServer().getDelegatedScopes(mContext.getPackageName());
@@ -308,10 +319,42 @@ public class Dhizuku {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     public static void setDelegatedScopes(String[] scopes) {
         try {
             requireServer().setDelegatedScopes(mContext.getPackageName(), scopes);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Register a listener that is called when the device enters or exits lock task mode.
+     * <p>
+     * Lock task mode callbacks ({@code DeviceAdminReceiver.onLockTaskModeEntering} /
+     * {@code onLockTaskModeExiting}) are only delivered to the device owner (Dhizuku Server)
+     * itself. This API forwards those events to your application.
+     * <p>
+     * Requires permission granted by {@link #requestPermission(DhizukuRequestPermissionListener)}
+     * and a server that supports this API (see {@link #getVersionCode()}).
+     *
+     * @see #removeLockTaskModeListener(DhizukuLockTaskModeListener)
+     */
+    public static void addLockTaskModeListener(DhizukuLockTaskModeListener listener) {
+        requireServerVersion(MIN_SERVER_VERSION_LOCK_TASK_LISTENER, "addLockTaskModeListener");
+        try {
+            requireServer().addLockTaskModeListener(listener);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Unregister a listener registered by {@link #addLockTaskModeListener(DhizukuLockTaskModeListener)}.
+     */
+    public static void removeLockTaskModeListener(DhizukuLockTaskModeListener listener) {
+        requireServerVersion(MIN_SERVER_VERSION_LOCK_TASK_LISTENER, "removeLockTaskModeListener");
+        try {
+            requireServer().removeLockTaskModeListener(listener);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }

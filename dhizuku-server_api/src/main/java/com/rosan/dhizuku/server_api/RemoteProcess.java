@@ -2,6 +2,7 @@ package com.rosan.dhizuku.server_api;
 
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.rosan.dhizuku.aidl.IDhizukuRemoteProcess;
 
@@ -14,6 +15,8 @@ import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings({"RedundantThrows", "CallToPrintStackTrace"})
 public class RemoteProcess extends IDhizukuRemoteProcess.Stub {
+    private static final String TAG = "DhizukuRemoteProcess";
+
     protected Process mProcess;
 
     private ParcelFileDescriptor mOut;
@@ -27,21 +30,21 @@ public class RemoteProcess extends IDhizukuRemoteProcess.Stub {
     }
 
     @Override
-    public ParcelFileDescriptor getOutputStream() throws RemoteException {
+    public synchronized ParcelFileDescriptor getOutputStream() throws RemoteException {
         if (mOut != null) return mOut;
         mOut = parcelable(mProcess.getOutputStream());
         return mOut;
     }
 
     @Override
-    public ParcelFileDescriptor getInputStream() throws RemoteException {
+    public synchronized ParcelFileDescriptor getInputStream() throws RemoteException {
         if (mIn != null) return mIn;
         mIn = parcelable(mProcess.getInputStream());
         return mIn;
     }
 
     @Override
-    public ParcelFileDescriptor getErrorStream() throws RemoteException {
+    public synchronized ParcelFileDescriptor getErrorStream() throws RemoteException {
         if (mErr != null) return mErr;
         mErr = parcelable(mProcess.getErrorStream());
         return mErr;
@@ -139,7 +142,8 @@ public class RemoteProcess extends IDhizukuRemoteProcess.Stub {
                     out.flush();
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                // runs on a daemon thread, so surface the failure instead of dropping it
+                Log.e(TAG, "stream transfer failed", e);
             } finally {
                 try {
                     in.close();
