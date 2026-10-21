@@ -6,6 +6,8 @@ android {
     namespace = "com.rosan.hidden_api"
     compileSdk = rootProject.ext.TARGET_SDK
 
+    enableKotlin = false
+
     defaultConfig {
         minSdk = rootProject.ext.MIN_SDK
     }
