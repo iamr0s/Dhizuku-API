@@ -24,13 +24,16 @@ public class UserService extends IUserServiceManager.Stub {
     @Override
     public void quit() throws RemoteException {
         for (IBinder service : map.values()) {
-            transact(service, 2);
+            try {
+                transact(service, 2);
+            } catch (RemoteException | RuntimeException ignored) {
+            }
         }
         System.exit(0);
     }
 
     @Override
-    public IBinder startService(ComponentName component) {
+    public synchronized IBinder startService(ComponentName component) {
         String key = component.flattenToShortString();
         IBinder service = map.get(key);
         if (service != null) return service;
@@ -50,7 +53,7 @@ public class UserService extends IUserServiceManager.Stub {
             return service;
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
                  InvocationTargetException | RemoteException |
-                 PackageManager.NameNotFoundException | NoSuchMethodException ignored) {
+                 PackageManager.NameNotFoundException | NoSuchMethodException | RuntimeException ignored) {
         }
         return null;
     }

@@ -31,7 +31,7 @@ class DhizukuServiceConnection {
     }
 
     void add(ServiceConnection connection) {
-        connections.add(connection);
+        if (!connections.contains(connection)) connections.add(connection);
     }
 
     void remove(ServiceConnection connection) {

@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class DhizukuRemoteProcess extends Process {
     private static final String TAG = "DhizukuRemoteProcess";
 
-    private IDhizukuRemoteProcess remote;
+    private volatile IDhizukuRemoteProcess remote;
 
     private OutputStream outputStream;
 
@@ -37,7 +37,7 @@ public class DhizukuRemoteProcess extends Process {
      */
     private IDhizukuRemoteProcess remoteOrNull() {
         IDhizukuRemoteProcess remote = this.remote;
-        if (remote == null || !remote.asBinder().pingBinder()) return null;
+        if (remote == null || !remote.asBinder().isBinderAlive()) return null;
         return remote;
     }
 
@@ -48,7 +48,7 @@ public class DhizukuRemoteProcess extends Process {
     }
 
     @Override
-    public OutputStream getOutputStream() {
+    public synchronized OutputStream getOutputStream() {
         if (outputStream != null) return outputStream;
         try {
             outputStream = new ParcelFileDescriptor.AutoCloseOutputStream(requireRemote().getOutputStream());
@@ -59,7 +59,7 @@ public class DhizukuRemoteProcess extends Process {
     }
 
     @Override
-    public InputStream getInputStream() {
+    public synchronized InputStream getInputStream() {
         if (inputStream != null) return inputStream;
         try {
             inputStream = new ParcelFileDescriptor.AutoCloseInputStream(requireRemote().getInputStream());
@@ -70,7 +70,7 @@ public class DhizukuRemoteProcess extends Process {
     }
 
     @Override
-    public InputStream getErrorStream() {
+    public synchronized InputStream getErrorStream() {
         if (errorStream != null) return errorStream;
         try {
             errorStream = new ParcelFileDescriptor.AutoCloseInputStream(requireRemote().getErrorStream());

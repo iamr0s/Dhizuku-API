@@ -65,7 +65,7 @@ public class RemoteProcess extends IDhizukuRemoteProcess.Stub {
         try {
             exitValue();
             return false;
-        } catch (IllegalThreadStateException e) {
+        } catch (IllegalThreadStateException ignored) {
             return true;
         }
     }
@@ -89,7 +89,7 @@ public class RemoteProcess extends IDhizukuRemoteProcess.Stub {
             try {
                 exitValue();
                 return true;
-            } catch (IllegalThreadStateException ex) {
+            } catch (IllegalThreadStateException ignored) {
                 if (rem > 0) {
                     try {
                         Thread.sleep(Math.min(TimeUnit.NANOSECONDS.toMillis(rem) + 1, 100));

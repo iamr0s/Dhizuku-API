@@ -28,7 +28,14 @@ public class Dhizuku {
 
     private static volatile ComponentName mOwnerComponent;
 
+    private static final DhizukuClient CLIENT = new DhizukuClient();
+
     private static volatile IDhizuku remote = null;
+
+    // serializes init() so concurrent callers don't all hit the provider
+    private static final Object INIT_LOCK = new Object();
+
+    private static volatile int mServerVersion = -1;
 
     public static ComponentName getOwnerComponent(Context context) {
         DevicePolicyManager manager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
@@ -66,12 +73,22 @@ public class Dhizuku {
      * @return If binder is received. (If not, maybe (Dhizuku not working / Dhizuku not active / Dhizuku not installed))
      */
     public static boolean init(Context context) {
+        if (context == null) return false;
+        synchronized (INIT_LOCK) {
+            return initLocked(context);
+        }
+    }
+
+    private static boolean initLocked(Context context) {
         DevicePolicyManager manager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
         IDhizuku server = remote;
-        if (server != null && server.asBinder().pingBinder()) {
-            String currentOwnerPackageName = getOwnerComponent().getPackageName();
-            if (manager.isDeviceOwnerApp(currentOwnerPackageName) || manager.isProfileOwnerApp(currentOwnerPackageName))
-                return true;
+        if (server != null && server.asBinder().isBinderAlive()) {
+            ComponentName owner = mOwnerComponent;
+            if (owner != null) {
+                String currentOwnerPackageName = owner.getPackageName();
+                if (manager.isDeviceOwnerApp(currentOwnerPackageName) || manager.isProfileOwnerApp(currentOwnerPackageName))
+                    return true;
+            }
         }
 
         ComponentName ownerComponent = getOwnerComponent(context);
@@ -82,7 +99,7 @@ public class Dhizuku {
 
         Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT).authority(authority).build();
         Bundle extras = new Bundle();
-        extras.putBinder(DhizukuVariables.EXTRA_CLIENT, new DhizukuClient().asBinder());
+        extras.putBinder(DhizukuVariables.EXTRA_CLIENT, CLIENT.asBinder());
         Bundle bundle;
         try {
             bundle = context.getContentResolver().call(uri, DhizukuVariables.PROVIDER_METHOD_CLIENT, null, extras);
@@ -93,12 +110,18 @@ public class Dhizuku {
         if (bundle == null) return false;
         IBinder iBinder = bundle.getBinder(DhizukuVariables.PARAM_DHIZUKU_BINDER);
         if (iBinder == null) return false;
+        DhizukuServiceConnections.reset();
         remote = IDhizuku.Stub.asInterface(iBinder);
+        mServerVersion = -1;
         try {
             iBinder.linkToDeath(() -> {
-                IDhizuku current = remote;
-                if (current == null || current.asBinder() != iBinder) return;
-                remote = null;
+                synchronized (INIT_LOCK) {
+                    IDhizuku current = remote;
+                    if (current == null || current.asBinder() != iBinder) return;
+                    remote = null;
+                    mServerVersion = -1;
+                    DhizukuServiceConnections.reset();
+                }
             }, 0);
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -107,9 +130,16 @@ public class Dhizuku {
         return true;
     }
 
+    private static Context requireContext() {
+        Context context = mContext;
+        if (context == null) throw new IllegalStateException("Dhizuku.init(context) must be called first");
+        return context;
+    }
+
     private static IDhizuku requireServer() {
         IDhizuku server = remote;
-        if (server != null && server.asBinder().pingBinder()) return server;
+        // pingBinder() is a sync PING_TRANSACTION; pinging a frozen process gets it killed
+        if (server != null && server.asBinder().isBinderAlive()) return server;
         Context context = mContext;
         if (context != null && init(context)) {
             server = remote;
@@ -122,13 +152,14 @@ public class Dhizuku {
      * The first server api version that ships
      * {@link #addLockTaskModeListener(DhizukuLockTaskModeListener)}.
      */
-    private static final int MIN_SERVER_VERSION_LOCK_TASK_LISTENER = 8;
+    private static final int MIN_SERVER_VERSION_LOCK_TASK_LISTENER = DhizukuVariables.SERVER_VERSION_CODE;
 
     /**
      * Throw when the connected server predates the requested feature.
      */
     private static void requireServerVersion(int minVersion, String feature) {
-        int version = getVersionCode();
+        int version = mServerVersion;
+        if (version < 0) version = getVersionCode();
         if (version < minVersion)
             throw new UnsupportedOperationException(feature + " requires Dhizuku Server API version "
                     + minVersion + " or newer, but the server is version " + version);
@@ -141,7 +172,9 @@ public class Dhizuku {
      */
     public static int getVersionCode() {
         try {
-            return requireServer().getVersionCode();
+            int version = requireServer().getVersionCode();
+            mServerVersion = version;
+            return version;
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -188,9 +221,7 @@ public class Dhizuku {
      * request the permission that can use privileged method.
      */
     public static void requestPermission(DhizukuRequestPermissionListener listener) {
-        Context context = mContext;
-        if (context == null) throw new IllegalStateException("Dhizuku.init(context) must be called first");
-        requestPermission(context, listener);
+        requestPermission(requireContext(), listener);
     }
 
     private static void requestPermission(Context context, DhizukuRequestPermissionListener listener) {
@@ -208,10 +239,10 @@ public class Dhizuku {
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
             context.startActivity(intent);
-        } catch (ActivityNotFoundException e) {
+        } catch (ActivityNotFoundException ignored) {
             try {
                 listener.onRequestPermission(PackageManager.PERMISSION_DENIED);
-            } catch (RemoteException ignored) {
+            } catch (RemoteException unused) {
             }
         }
     }
@@ -313,7 +344,7 @@ public class Dhizuku {
 
     public static String[] getDelegatedScopes() {
         try {
-            return requireServer().getDelegatedScopes(mContext.getPackageName());
+            return requireServer().getDelegatedScopes(requireContext().getPackageName());
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -321,7 +352,7 @@ public class Dhizuku {
 
     public static void setDelegatedScopes(String[] scopes) {
         try {
-            requireServer().setDelegatedScopes(mContext.getPackageName(), scopes);
+            requireServer().setDelegatedScopes(requireContext().getPackageName(), scopes);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }

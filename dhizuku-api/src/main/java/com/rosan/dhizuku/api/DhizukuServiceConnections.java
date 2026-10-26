@@ -71,11 +71,27 @@ class DhizukuServiceConnections {
     private static IBinder aliveService(String token) {
         synchronized (map) {
             IBinder service = services.get(token);
-            if (service != null && !service.pingBinder()) {
+            if (service != null && !service.isBinderAlive()) {
                 services.remove(token);
                 return null;
             }
             return service;
+        }
+    }
+
+    /**
+     * Forget every cached user service after the Dhizuku server binder died.
+     */
+    static void reset() {
+        List<Map.Entry<String, DhizukuServiceConnection>> entries;
+        synchronized (map) {
+            entries = new ArrayList<>(map.entrySet());
+            map.clear();
+            services.clear();
+        }
+        for (Map.Entry<String, DhizukuServiceConnection> entry : entries) {
+            ComponentName name = ComponentName.unflattenFromString(entry.getKey());
+            if (name != null) entry.getValue().onServiceDisconnected(name);
         }
     }
 
@@ -86,6 +102,12 @@ class DhizukuServiceConnections {
     }
 
     static void stop(IDhizuku dhizuku, DhizukuUserServiceArgs args) throws RemoteException {
+        ComponentName name = args.getComponentName();
+        String token = name.flattenToString();
+        synchronized (map) {
+            map.remove(token);
+            services.remove(token);
+        }
         dhizuku.unbindUserService(args.build());
     }
 
@@ -101,7 +123,7 @@ class DhizukuServiceConnections {
             }
             serviceConnection.add(connection);
             service = services.get(token);
-            if (service != null && !service.pingBinder()) {
+            if (service != null && !service.isBinderAlive()) {
                 services.remove(token);
                 service = null;
             }

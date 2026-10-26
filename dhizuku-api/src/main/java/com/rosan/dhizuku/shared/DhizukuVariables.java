@@ -6,6 +6,8 @@ import android.os.Binder;
 import java.util.Objects;
 
 public class DhizukuVariables {
+    public static final int SERVER_VERSION_CODE = 8;
+
     public static final String OFFICIAL_PACKAGE_NAME = "com.rosan.dhizuku";
 
     public static final String PACKAGE_NAME = OFFICIAL_PACKAGE_NAME;

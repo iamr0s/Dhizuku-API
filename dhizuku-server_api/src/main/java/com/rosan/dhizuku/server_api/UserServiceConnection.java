@@ -25,7 +25,22 @@ public final class UserServiceConnection {
 
     private final DhizukuUserServiceArgs mArgs;
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ExecutorService executor = newExecutor();
+
+    private static ExecutorService newExecutor() {
+        return Executors.newSingleThreadExecutor(runnable -> {
+            Thread thread = new Thread(runnable, "DhizukuUserService");
+            thread.setDaemon(true);
+            return thread;
+        });
+    }
+
+    private ExecutorService executor() {
+        synchronized (connections) {
+            if (executor == null || executor.isShutdown()) executor = newExecutor();
+            return executor;
+        }
+    }
 
     private boolean startRequested = false;
 
@@ -74,7 +89,7 @@ public final class UserServiceConnection {
             connections.add(connection);
 
             IBinder service = this.mService;
-            if (service != null && service.pingBinder()) {
+            if (service != null && service.isBinderAlive()) {
                 // service is alive and is triggered directly
                 try {
                     connection.connected(this.mArgs.build(), service);
@@ -113,7 +128,7 @@ public final class UserServiceConnection {
     private void bringUpService() {
         synchronized (connections) {
             IBinder service = this.mService;
-            if (service != null && service.pingBinder()) {
+            if (service != null && service.isBinderAlive()) {
                 // service is alive and is triggered directly
                 connected(service);
                 return;
@@ -125,7 +140,7 @@ public final class UserServiceConnection {
     }
 
     private void asyncBringUpService() {
-        executor.submit(() -> {
+        executor().submit(() -> {
             synchronized (connections) {
                 IUserServiceManager manager = this.mManager;
                 if (manager != null && manager.asBinder().pingBinder()) {
@@ -169,23 +184,22 @@ public final class UserServiceConnection {
     }
 
     private void asyncShutdownService() {
-        executor.submit(() -> {
-            IUserServiceManager manager;
-            synchronized (connections) {
-                manager = this.mManager;
-                this.mManager = null;
-                this.mService = null;
-                this.startRequested = false;
-                connections.clear();
-            }
+        IUserServiceManager manager;
+        synchronized (connections) {
+            manager = this.mManager;
+            this.mManager = null;
+            this.mService = null;
+            this.startRequested = false;
+        }
+        ExecutorService serviceExecutor = executor();
+        serviceExecutor.submit(() -> {
             if (manager != null) {
                 try {
                     manager.quit();
                 } catch (RemoteException ignored) {
-                    // maybe throw, DeadObjectException
                 }
             }
-            executor.shutdown();
+            serviceExecutor.shutdown();
         });
     }
 }
