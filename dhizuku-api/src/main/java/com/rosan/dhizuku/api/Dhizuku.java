@@ -12,7 +12,9 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.RemoteException;
 
@@ -21,6 +23,7 @@ import com.rosan.dhizuku.shared.DhizukuVariables;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Dhizuku {
 
@@ -217,17 +220,43 @@ public class Dhizuku {
         }
     }
 
+    private static final long REQUEST_PERMISSION_TIMEOUT_MS = 15_000;
+
     /**
-     * request the permission that can use privileged method.
+     * Request the permission that can use privileged method.
+     * <p>
+     * If the server does not answer within 15 seconds, the listener is called with
+     * {@link PackageManager#PERMISSION_DENIED}.
      */
     public static void requestPermission(DhizukuRequestPermissionListener listener) {
         requestPermission(requireContext(), listener);
     }
 
     private static void requestPermission(Context context, DhizukuRequestPermissionListener listener) {
+        if (listener == null) throw new NullPointerException("listener == null");
+
+        Handler handler = new Handler(Looper.getMainLooper());
+        AtomicBoolean finished = new AtomicBoolean(false);
+        Runnable timeout = () -> {
+            if (!finished.compareAndSet(false, true)) return;
+            try {
+                listener.onRequestPermission(PackageManager.PERMISSION_DENIED);
+            } catch (RemoteException ignored) {
+            }
+        };
+
+        DhizukuRequestPermissionListener wrapper = new DhizukuRequestPermissionListener() {
+            @Override
+            public void onRequestPermission(int grantResult) throws RemoteException {
+                if (!finished.compareAndSet(false, true)) return;
+                handler.removeCallbacks(timeout);
+                listener.onRequestPermission(grantResult);
+            }
+        };
+
         Bundle bundle = new Bundle();
         bundle.putInt(DhizukuVariables.PARAM_CLIENT_UID, context.getApplicationInfo().uid);
-        bundle.putBinder(DhizukuVariables.PARAM_CLIENT_REQUEST_PERMISSION_BINDER, listener.asBinder());
+        bundle.putBinder(DhizukuVariables.PARAM_CLIENT_REQUEST_PERMISSION_BINDER, wrapper.asBinder());
 
         String packageName = getOwnerPackageName();
         String action = DhizukuVariables.getActionRequestPermission(packageName);
@@ -237,9 +266,13 @@ public class Dhizuku {
                 .putExtras(bundle)
                 .putExtra("bundle", bundle) // Will be deprecated in the future.
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        handler.postDelayed(timeout, REQUEST_PERMISSION_TIMEOUT_MS);
         try {
             context.startActivity(intent);
         } catch (ActivityNotFoundException ignored) {
+            if (!finished.compareAndSet(false, true)) return;
+            handler.removeCallbacks(timeout);
             try {
                 listener.onRequestPermission(PackageManager.PERMISSION_DENIED);
             } catch (RemoteException unused) {
