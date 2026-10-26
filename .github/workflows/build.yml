@@ -45,7 +45,7 @@ jobs:
         if: steps.app_process-api.outputs.cache-hit != 'true'
         uses: actions/checkout@v6
         with:
-          repository: iamr0s/AndrdoidAppProcess
+          repository: iamr0s/AndroidAppProcess
           path: app_process
 
       - name: Build AppProcess
