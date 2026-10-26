@@ -1,5 +1,6 @@
 package com.rosan.dhizuku.server_api;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
@@ -201,6 +202,7 @@ public abstract class DhizukuService extends IDhizuku.Stub {
                     + " does not belong to uid " + callingUid);
     }
 
+    @SuppressLint("UseRequiresApi")
     @TargetApi(Build.VERSION_CODES.O)
     @Override
     public String[] getDelegatedScopes(String packageName) throws RemoteException {
@@ -209,6 +211,7 @@ public abstract class DhizukuService extends IDhizuku.Stub {
         return mManager.getDelegatedScopes(mAdmin, packageName).toArray(new String[0]);
     }
 
+    @SuppressLint("UseRequiresApi")
     @TargetApi(Build.VERSION_CODES.O)
     @Override
     public void setDelegatedScopes(String packageName, String[] scopes) throws RemoteException {

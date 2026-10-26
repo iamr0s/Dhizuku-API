@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Dhizuku {
 
+    @SuppressLint("StaticFieldLeak")
     private static volatile Context mContext = null;
 
     private static volatile ComponentName mOwnerComponent;
