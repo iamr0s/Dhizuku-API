@@ -9,4 +9,20 @@ ext {
 
     CLIENT_API_VERSION = '1.7.0'
     SERVER_API_VERSION = '0.2.0'
+
+    GROUP_ID = 'io.github.iamr0s'
+    API_ARTIFACT_ID = 'Dhizuku-API'
+    SERVER_API_ARTIFACT_ID = 'Dhizuku-SERVER_API'
+    API_POM_NAME = 'Dhizuku-API'
+    API_POM_DESCRIPTION = 'API for Dhizuku'
+    SERVER_API_POM_NAME = 'Dhizuku-SERVER_API'
+    SERVER_API_POM_DESCRIPTION = 'Server API for Dhizuku'
+    POM_INCEPTION_YEAR = '2024'
+    POM_URL = 'https://github.com/iamr0s/Dhizuku-API'
+    POM_SCM_URL = 'https://github.com/iamr0s/Dhizuku-API'
+    POM_SCM_CONNECTION = 'scm:git:https://github.com/iamr0s/Dhizuku-API.git'
+    POM_LICENSE_NAME = 'Apache-2.0'
+    POM_LICENSE_URL = 'https://www.apache.org/licenses/LICENSE-2.0'
+    POM_DEVELOPER_NAME = 'iamr0s'
+    POM_DEVELOPER_URL = 'https://github.com/iamr0s'
 }
