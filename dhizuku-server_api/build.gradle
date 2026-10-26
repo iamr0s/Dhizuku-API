@@ -44,7 +44,7 @@ android {
 }
 
 dependencies {
-    implementation(libs.appprocess)
+    implementation(libs.app_process)
     api project(':Dhizuku-API')
     compileOnly project(':hidden-api')
 }
