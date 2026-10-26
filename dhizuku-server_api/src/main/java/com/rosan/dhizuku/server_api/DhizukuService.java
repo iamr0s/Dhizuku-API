@@ -104,6 +104,7 @@ public abstract class DhizukuService extends IDhizuku.Stub {
 
     public boolean onRemoteTransact(IBinder binder, int code, Parcel data, Parcel reply, int flags) {
         enforceCallingPermission("remote_transact");
+        if (binder == null || data == null) return false;
         return DhizukuProcess.get().remoteTransact(binder, code, data, reply, flags);
     }
 
@@ -128,8 +129,11 @@ public abstract class DhizukuService extends IDhizuku.Stub {
     @Override
     public IDhizukuRemoteProcess remoteProcess(String[] cmd, String[] env, String dir) throws RemoteException {
         enforceCallingPermission("remote_process");
+        if (cmd == null || cmd.length == 0)
+            throw new IllegalArgumentException("cmd is empty");
         LinkedHashMap<String, String> environment = new LinkedHashMap<>();
         if (env != null) for (String envstring : env) {
+            if (envstring == null) continue;
             if (envstring.indexOf('\u0000') != -1)
                 envstring = envstring.replaceFirst("\u0000.*", "");
             int sign =
@@ -152,6 +156,7 @@ public abstract class DhizukuService extends IDhizuku.Stub {
         int uid = Binder.getCallingUid();
         int pid = Binder.getCallingPid();
         DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(bundle);
+        enforceComponentBelongsToCaller(args.getComponentName());
         UserServiceConnections.bind(uid, pid, args, connection);
     }
 
@@ -162,6 +167,7 @@ public abstract class DhizukuService extends IDhizuku.Stub {
         int uid = Binder.getCallingUid();
         int pid = Binder.getCallingPid();
         DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(bundle);
+        enforceComponentBelongsToCaller(args.getComponentName());
         UserServiceConnections.unbind(uid, pid, args);
     }
 
@@ -172,13 +178,34 @@ public abstract class DhizukuService extends IDhizuku.Stub {
         int uid = Binder.getCallingUid();
         int pid = Binder.getCallingPid();
         DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(bundle);
+        enforceComponentBelongsToCaller(args.getComponentName());
         UserServiceConnections.unbind(uid, pid, args, connection);
+    }
+
+    private void enforcePackageBelongsToCaller(String packageName) {
+        int callingUid = Binder.getCallingUid();
+        if (callingUid == android.os.Process.myUid()) return;
+        String[] packages = mContext.getPackageManager().getPackagesForUid(callingUid);
+        if (packageName == null || packages == null || !Arrays.asList(packages).contains(packageName))
+            throw new SecurityException("Package " + packageName + " does not belong to uid " + callingUid);
+    }
+
+    private void enforceComponentBelongsToCaller(ComponentName component) {
+        if (component == null)
+            throw new SecurityException("UserService component is null");
+        int callingUid = Binder.getCallingUid();
+        if (callingUid == android.os.Process.myUid()) return;
+        String[] packages = mContext.getPackageManager().getPackagesForUid(callingUid);
+        if (packages == null || !Arrays.asList(packages).contains(component.getPackageName()))
+            throw new SecurityException("Package " + component.getPackageName()
+                    + " does not belong to uid " + callingUid);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
     @Override
     public String[] getDelegatedScopes(String packageName) throws RemoteException {
         enforceCallingPermission("get_delegated_scopes");
+        enforcePackageBelongsToCaller(packageName);
         return mManager.getDelegatedScopes(mAdmin, packageName).toArray(new String[0]);
     }
 
@@ -186,7 +213,8 @@ public abstract class DhizukuService extends IDhizuku.Stub {
     @Override
     public void setDelegatedScopes(String packageName, String[] scopes) throws RemoteException {
         enforceCallingPermission("set_delegated_scopes");
-        mManager.setDelegatedScopes(mAdmin, packageName, Arrays.asList(scopes));
+        enforcePackageBelongsToCaller(packageName);
+        mManager.setDelegatedScopes(mAdmin, packageName, Arrays.asList(scopes == null ? new String[0] : scopes));
     }
 
     @Override
