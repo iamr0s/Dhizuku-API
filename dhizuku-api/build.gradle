@@ -88,7 +88,7 @@ publishing {
 }
 
 signing {
-    if (publishingFile.exists()) {
+    if (publishingFile.exists() && publishingProps['signing.keyId'] != null) {
         def privateKey = publishingProps['signing.privateKey']
         if (privateKey == null) {
             privateKey = file(publishingProps['signing.secretKeyRingFile']).text
