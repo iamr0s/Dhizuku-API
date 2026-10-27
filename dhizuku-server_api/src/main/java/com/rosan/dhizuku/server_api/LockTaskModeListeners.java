@@ -95,7 +95,10 @@ public final class LockTaskModeListeners {
         Entry entry = new Entry(binder, listener, recipient);
         synchronized (LOCK) {
             if (LISTENERS.containsKey(binder)) {
-                binder.unlinkToDeath(recipient, 0);
+                try {
+                    binder.unlinkToDeath(recipient, 0);
+                } catch (RuntimeException ignored) {
+                }
                 return;
             }
             LISTENERS.put(binder, entry);
@@ -120,7 +123,10 @@ public final class LockTaskModeListeners {
             entry = LISTENERS.remove(binder);
         }
         if (entry == null) return;
-        binder.unlinkToDeath(entry.recipient, 0);
+        try {
+            binder.unlinkToDeath(entry.recipient, 0);
+        } catch (RuntimeException ignored) {
+        }
         unregisterFrozenCallback(entry);
         notifyCountChanged();
     }
