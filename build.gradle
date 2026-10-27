@@ -22,7 +22,7 @@ ext {
     POM_SCM_URL = 'https://github.com/iamr0s/Dhizuku-API'
     POM_SCM_CONNECTION = 'scm:git:https://github.com/iamr0s/Dhizuku-API.git'
     POM_LICENSE_NAME = 'Apache-2.0'
-    POM_LICENSE_URL = 'https://www.apache.org/licenses/LICENSE-2.0'
+    POM_LICENSE_URL = 'https://github.com/iamr0s/Dhizuku-API/blob/main/LICENSE'
     POM_DEVELOPER_NAME = 'iamr0s'
     POM_DEVELOPER_URL = 'https://github.com/iamr0s'
 }
