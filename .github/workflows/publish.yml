@@ -29,10 +29,10 @@ jobs:
 
       - name: Set environment
         run: |
-          client_name="$(grep CLIENT_API_ARTIFACT_ID build.gradle| awk -F\" '{print $2}')"
-          client_version="v$(grep CLIENT_API_VERSION build.gradle| awk -F\" '{print $2}')"
-          server_name="$(grep SERVER_API_ARTIFACT_ID build.gradle| awk -F\" '{print $2}')"
-          server_version="v$(grep SERVER_API_VERSION build.gradle| awk -F\" '{print $2}')"
+          client_name="$(grep CLIENT_API_ARTIFACT_ID build.gradle| awk -F\' '{print $2}')"
+          client_version="v$(grep CLIENT_API_VERSION build.gradle| awk -F\' '{print $2}')"
+          server_name="$(grep SERVER_API_ARTIFACT_ID build.gradle| awk -F\' '{print $2}')"
+          server_version="v$(grep SERVER_API_VERSION build.gradle| awk -F\' '{print $2}')"
           {
             echo "client_name=$client_name"
             echo "client_version=$client_version"
