@@ -2,8 +2,12 @@ name: Build
 
 on:
   push:
+    branches:
+      - '**'
     paths-ignore:
       - 'docs/**'
+    tags-ignore:
+      - 'v*'
   pull_request:
   workflow_dispatch:
 
@@ -28,10 +32,11 @@ jobs:
       - name: Set environment
         run: |
           {
-            echo "repo=$(echo ${GITHUB_REPOSITORY#$GITHUB_REPOSITORY_OWNER/})"
+            echo "client_name=$(grep CLIENT_API_ARTIFACT_ID build.gradle | awk -F\' '{print $2}')"
+            echo "server_name=$(grep SERVER_API_ARTIFACT_ID build.gradle | awk -F\' '{print $2}')"
+            echo "client_version=v$(grep CLIENT_API_VERSION build.gradle | awk -F\' '{print $2}')"
+            echo "server_version=v$(grep SERVER_API_VERSION build.gradle | awk -F\' '{print $2}')"
             echo "commit=$(echo ${{ github.sha }} | cut -c-7)"
-            echo "client=$(grep CLIENT_API_VERSION build.gradle | awk -F\' '{print $2}')"
-            echo "server=$(grep SERVER_API_VERSION build.gradle | awk -F\' '{print $2}')"
           } >> $GITHUB_ENV
 
       - name: Cache AppProcess API
@@ -51,22 +56,22 @@ jobs:
       - name: Build AppProcess
         if: steps.app_process-api.outputs.cache-hit != 'true'
         working-directory: app_process
-        run: ./gradlew --no-daemon publishToMavenLocal
+        run: ./gradlew publishToMavenLocal
 
       - name: Build Dhizuku-API
         run: |
-          ./gradlew --no-daemon --warning-mode=all assembleDebug
-          cp dhizuku-server_api/build/outputs/aar/Dhizuku-SERVER_API-debug.aar "${{ env.repo }}_SERVER-${{ env.server }}@${{ env.commit }}.aar"
-          cp dhizuku-api/build/outputs/aar/Dhizuku-API-debug.aar "${{ env.repo }}_CLIENT-${{ env.client }}@${{ env.commit }}.aar"
+          ./gradlew --warning-mode=all assembleDebug
+          cp dhizuku-server_api/build/outputs/aar/dhizuku-server_api-debug.aar "${{ env.server_name }}-${{ env.server_version }}@${{ env.commit }}.aar"
+          cp dhizuku-api/build/outputs/aar/dhizuku-api-debug.aar "${{ env.client_name }}-${{ env.client_version }}@${{ env.commit }}.aar"
 
       - name: Upload (Server)
         uses: actions/upload-artifact@v7
         with:
           archive: false
-          path: "${{ env.repo }}_SERVER-${{ env.server }}@${{ env.commit }}.aar"
+          path: "${{ env.server_name }}-${{ env.server_version }}@${{ env.commit }}.aar"
 
       - name: Upload (Client)
         uses: actions/upload-artifact@v7
         with:
           archive: false
-          path: "${{ env.repo }}_CLIENT-${{ env.client }}@${{ env.commit }}.aar"
+          path: "${{ env.client_name }}-${{ env.client_version }}@${{ env.commit }}.aar"

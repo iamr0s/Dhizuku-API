@@ -12,13 +12,13 @@ if (signingFile.exists()) {
 
 android {
     namespace = 'com.rosan.dhizuku.api'
-    compileSdk = rootProject.ext.TARGET_SDK
+    compileSdk = rootProject.TARGET_SDK
 
     enableKotlin = false
 
     defaultConfig {
-        minSdk = rootProject.ext.MIN_SDK
-        targetSdk = rootProject.ext.TARGET_SDK
+        minSdk = rootProject.MIN_SDK
+        targetSdk = rootProject.TARGET_SDK
 
         consumerProguardFiles 'consumer-rules.pro'
     }
@@ -52,29 +52,29 @@ publishing {
                 from components.findByName('release')
             }
 
-            group = rootProject.ext.GROUP_ID
-            artifactId = rootProject.ext.API_ARTIFACT_ID
-            version = rootProject.ext.CLIENT_API_VERSION
+            group = rootProject.GROUP_ID
+            artifactId = rootProject.CLIENT_API_ARTIFACT_ID
+            version = rootProject.CLIENT_API_VERSION
 
             pom {
-                name = rootProject.ext.API_POM_NAME
-                description = rootProject.ext.API_POM_DESCRIPTION
-                inceptionYear = rootProject.ext.POM_INCEPTION_YEAR
-                url = rootProject.ext.POM_URL
+                name = rootProject.CLIENT_API_POM_NAME
+                description = rootProject.CLIENT_API_POM_DESCRIPTION
+                inceptionYear = rootProject.POM_INCEPTION_YEAR
+                url = rootProject.POM_URL
                 scm {
-                    url = rootProject.ext.POM_SCM_URL
-                    connection = rootProject.ext.POM_SCM_CONNECTION
+                    url = rootProject.POM_SCM_URL
+                    connection = rootProject.POM_SCM_CONNECTION
                 }
                 licenses {
                     license {
-                        name = rootProject.ext.POM_LICENSE_NAME
-                        url = rootProject.ext.POM_LICENSE_URL
+                        name = rootProject.POM_LICENSE_NAME
+                        url = rootProject.POM_LICENSE_URL
                     }
                 }
                 developers {
                     developer {
-                        name = rootProject.ext.POM_DEVELOPER_NAME
-                        url = rootProject.ext.POM_DEVELOPER_URL
+                        name = rootProject.POM_DEVELOPER_NAME
+                        url = rootProject.POM_DEVELOPER_URL
                     }
                 }
             }
@@ -88,14 +88,9 @@ publishing {
 }
 
 signing {
-    if (signingFile.exists() && signingProps['signing.keyId'] != null) {
-        def privateKey = signingProps['signing.privateKey']
-        if (privateKey == null) {
-            privateKey = file(signingProps['signing.secretKeyRingFile']).text
-        }
+    if (signingFile.exists()) {
         useInMemoryPgpKeys(
-                signingProps['signing.keyId'],
-                privateKey,
+                file(signingProps['signing.secretKeyRingFile']).text,
                 signingProps['signing.password']
         )
         sign publishing.publications

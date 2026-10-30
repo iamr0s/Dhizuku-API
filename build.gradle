@@ -6,10 +6,10 @@ ext {
     SERVER_API_VERSION = '0.2.0'
 
     GROUP_ID = 'io.github.iamr0s'
-    API_ARTIFACT_ID = 'Dhizuku-API'
+    CLIENT_API_ARTIFACT_ID = 'Dhizuku-API'
     SERVER_API_ARTIFACT_ID = 'Dhizuku-SERVER_API'
-    API_POM_NAME = 'Dhizuku-API'
-    API_POM_DESCRIPTION = 'API for Dhizuku'
+    CLIENT_API_POM_NAME = 'Dhizuku-API'
+    CLIENT_API_POM_DESCRIPTION = 'API for Dhizuku'
     SERVER_API_POM_NAME = 'Dhizuku-SERVER_API'
     SERVER_API_POM_DESCRIPTION = 'Server API for Dhizuku'
     POM_INCEPTION_YEAR = '2024'
