@@ -39,26 +39,7 @@ jobs:
             echo "commit=$(echo ${{ github.sha }} | cut -c-7)"
           } >> $GITHUB_ENV
 
-      - name: Cache AppProcess API
-        id: app_process-api
-        uses: actions/cache@v6
-        with:
-          path: ~/.m2/repository/
-          key: 202610270630JST
-
-      - name: Checkout API
-        if: steps.app_process-api.outputs.cache-hit != 'true'
-        uses: actions/checkout@v6
-        with:
-          repository: iamr0s/AndroidAppProcess
-          path: app_process
-
-      - name: Build AppProcess
-        if: steps.app_process-api.outputs.cache-hit != 'true'
-        working-directory: app_process
-        run: ./gradlew publishToMavenLocal
-
-      - name: Build Dhizuku-API
+      - name: Build
         run: |
           ./gradlew --warning-mode=all assembleDebug
           cp dhizuku-server_api/build/outputs/aar/dhizuku-server_api-debug.aar "${{ env.server_name }}-${{ env.server_version }}@${{ env.commit }}.aar"
