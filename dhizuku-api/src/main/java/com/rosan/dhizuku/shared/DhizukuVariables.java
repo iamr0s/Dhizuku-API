@@ -3,16 +3,18 @@ package com.rosan.dhizuku.shared;
 import android.content.ComponentName;
 import android.os.Binder;
 
+import com.rosan.dhizuku.api.BuildConfig;
+
 import java.util.Objects;
 
 public class DhizukuVariables {
-    public static final int SERVER_VERSION_CODE = 10;
+    public static final int SERVER_VERSION_CODE = BuildConfig.SERVER_VERSION_CODE;
 
-    /**
-     * Protocol version of the client api. Bumped when an AIDL contract changes, so the
-     * server can tell which callbacks it may use.
-     */
-    public static final int CLIENT_VERSION_CODE = 2;
+    public static final String SERVER_VERSION_NAME = BuildConfig.SERVER_VERSION_NAME;
+
+    public static final int CLIENT_VERSION_CODE = BuildConfig.CLIENT_VERSION_CODE;
+
+    public static final String CLIENT_VERSION_NAME = BuildConfig.CLIENT_VERSION_NAME;
 
     public static final String OFFICIAL_PACKAGE_NAME = "com.rosan.dhizuku";
 

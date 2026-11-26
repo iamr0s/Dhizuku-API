@@ -33,8 +33,8 @@ jobs:
         run: |
           client_name="$(grep CLIENT_API_ARTIFACT_ID build.gradle | awk -F\' '{print $2}')"
           server_name="$(grep SERVER_API_ARTIFACT_ID build.gradle | awk -F\' '{print $2}')"
-          client_version="$(grep CLIENT_API_VERSION build.gradle | awk -F\' '{print $2}')"
-          server_version="$(grep SERVER_API_VERSION build.gradle | awk -F\' '{print $2}')"
+          client_version="$(grep CLIENT_API_VERSION_NAME build.gradle | awk -F\' '{print $2}')"
+          server_version="$(grep SERVER_API_VERSION_NAME build.gradle | awk -F\' '{print $2}')"
           commit="$(echo ${{ github.sha }} | cut -c-7)"
           {
             echo "client_name=$client_name"

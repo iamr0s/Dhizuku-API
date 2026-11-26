@@ -21,6 +21,11 @@ android {
         targetSdk = rootProject.TARGET_SDK
 
         consumerProguardFiles 'consumer-rules.pro'
+
+        buildConfigField 'int', 'CLIENT_VERSION_CODE', "${rootProject.CLIENT_API_VERSION_CODE}"
+        buildConfigField 'String', 'CLIENT_VERSION_NAME', "\"${rootProject.CLIENT_API_VERSION_NAME}\""
+        buildConfigField 'int', 'SERVER_VERSION_CODE', "${rootProject.SERVER_API_VERSION_CODE}"
+        buildConfigField 'String', 'SERVER_VERSION_NAME', "\"${rootProject.SERVER_API_VERSION_NAME}\""
     }
 
     buildFeatures {
@@ -54,7 +59,7 @@ publishing {
 
             group = rootProject.GROUP_ID
             artifactId = rootProject.CLIENT_API_ARTIFACT_ID
-            version = rootProject.CLIENT_API_VERSION
+            version = rootProject.CLIENT_API_VERSION_NAME
 
             pom {
                 name = rootProject.CLIENT_API_POM_NAME

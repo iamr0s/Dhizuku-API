@@ -20,8 +20,6 @@ android {
         minSdk = rootProject.MIN_SDK
         targetSdk = rootProject.TARGET_SDK
 
-        buildConfigField 'String', 'SERVICE_VERSION_NAME', "\"${rootProject.SERVER_API_VERSION}\""
-
         consumerProguardFiles 'consumer-rules.pro'
     }
 
@@ -58,7 +56,7 @@ publishing {
 
             group = rootProject.GROUP_ID
             artifactId = rootProject.SERVER_API_ARTIFACT_ID
-            version = rootProject.SERVER_API_VERSION
+            version = rootProject.SERVER_API_VERSION_NAME
 
             pom {
                 name = rootProject.SERVER_API_POM_NAME
