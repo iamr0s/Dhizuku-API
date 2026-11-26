@@ -21,6 +21,8 @@ public class DhizukuUserServiceArgs {
     public DhizukuUserServiceArgs(Bundle bundle) {
         // defensive copy: the caller keeps ownership of the original bundle
         this.bundle = new Bundle(bundle);
+        if (getComponentName() == null)
+            throw new IllegalArgumentException("bundle does not contain a component name");
     }
 
     public DhizukuUserServiceArgs setComponentName(ComponentName name) {
@@ -41,6 +43,8 @@ public class DhizukuUserServiceArgs {
     }
 
     public String flattenToShortString() {
-        return getComponentName().flattenToShortString();
+        ComponentName name = getComponentName();
+        if (name == null) throw new IllegalStateException("component name is not set");
+        return name.flattenToShortString();
     }
 }

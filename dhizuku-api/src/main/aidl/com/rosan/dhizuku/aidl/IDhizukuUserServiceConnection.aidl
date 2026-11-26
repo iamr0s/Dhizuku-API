@@ -7,4 +7,6 @@ interface IDhizukuUserServiceConnection {
     oneway void connected(in Bundle bundle, IBinder service);
 
     oneway void died(in Bundle bundle);
+
+    oneway void failed(in Bundle bundle, int reason);
 }

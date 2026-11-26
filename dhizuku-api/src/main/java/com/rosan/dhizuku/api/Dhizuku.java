@@ -159,7 +159,13 @@ public class Dhizuku {
      * The first server api version that ships
      * {@link #addLockTaskModeListener(DhizukuLockTaskModeListener)}.
      */
-    private static final int MIN_SERVER_VERSION_LOCK_TASK_LISTENER = DhizukuVariables.SERVER_VERSION_CODE;
+    private static final int MIN_SERVER_VERSION_LOCK_TASK_LISTENER = 9;
+
+    /**
+     * The first server api version that reports start failures through
+     * {@link DhizukuUserServiceErrorListener}. Older servers rely on the client timeout only.
+     */
+    private static final int MIN_SERVER_VERSION_USER_SERVICE_ERROR = 10;
 
     /**
      * Throw when the connected server predates the requested feature.
@@ -209,6 +215,52 @@ public class Dhizuku {
         ComponentName component = mOwnerComponent;
         if (component == null) throw new IllegalStateException("owner component haven't been received");
         return component;
+    }
+
+    /**
+     * @return true when a live binder to the Dhizuku server has already been obtained,
+     * false when {@link #init(Context)} has not succeeded or the server has restarted.
+     */
+    public static boolean isInitialized() {
+        IDhizuku server = remote;
+        return server != null && server.asBinder().isBinderAlive();
+    }
+
+    /**
+     * @return true when Dhizuku is installed, activated as device owner and reachable.
+     * This never throws, so it is safe to use for deciding what UI to show.
+     */
+    public static boolean isAvailable() {
+        Context context = mContext;
+        if (context == null) return false;
+        try {
+            return init(context);
+        } catch (RuntimeException e) {
+            Log.e(TAG, "failed to check availability", e);
+            return false;
+        }
+    }
+
+    /**
+     * @return the server version code, or {@code fallback} when the server is unreachable.
+     */
+    public static int getVersionCodeOr(int fallback) {
+        try {
+            return getVersionCode();
+        } catch (RuntimeException e) {
+            return fallback;
+        }
+    }
+
+    /**
+     * @return the server version name, or {@code fallback} when the server is unreachable.
+     */
+    public static String getVersionNameOr(String fallback) {
+        try {
+            return getVersionName();
+        } catch (RuntimeException e) {
+            return fallback;
+        }
     }
 
     /**
@@ -356,8 +408,34 @@ public class Dhizuku {
      * @throws RuntimeException if the server is unreachable.
      */
     public static boolean bindUserService(DhizukuUserServiceArgs args, ServiceConnection connection) {
+        return bindUserService(args, connection, DhizukuServiceConnections.DEFAULT_BIND_TIMEOUT_MS, null);
+    }
+
+    /**
+     * bind a UserService.
+     * <p>
+     * Unlike {@link #bindUserService(DhizukuUserServiceArgs, ServiceConnection)}, this overload
+     * reports the cases where the service never comes up. Without it a failure to start the
+     * service process is invisible: the binder call succeeds, but {@code connection} is never
+     * invoked and nothing tells the caller why.
+     *
+     * @param args the service to bind.
+     * @param connection notified when the service connects.
+     * @param timeoutMs how long to wait for the first connection before reporting
+     * {@link DhizukuUserServiceError#TIMEOUT}. Use a value {@code <= 0} to disable the timeout.
+     * @param errorListener notified when the service fails to start or dies, may be null.
+     * @return true when the request was handed to the server.
+     * @throws RuntimeException if the server is unreachable.
+     */
+    public static boolean bindUserService(DhizukuUserServiceArgs args, ServiceConnection connection, long timeoutMs, DhizukuUserServiceErrorListener errorListener) {
         try {
-            DhizukuServiceConnections.bind(requireServer(), args, connection);
+            IDhizuku server = requireServer();
+            DhizukuUserServiceErrorListener listener = errorListener;
+            if (listener != null && getVersionCodeOr(0) < MIN_SERVER_VERSION_USER_SERVICE_ERROR) {
+                Log.w(TAG, "server does not report user service failures, relying on the timeout only");
+                listener = null;
+            }
+            DhizukuServiceConnections.bind(server, args, connection, listener, timeoutMs);
             return true;
         } catch (RemoteException e) {
             throw new RuntimeException(e);
@@ -370,8 +448,22 @@ public class Dhizuku {
      * @throws RuntimeException if the server is unreachable.
      */
     public static boolean unbindUserService(ServiceConnection connection) {
+        return unbindUserService(connection, true);
+    }
+
+    /**
+     * unbind a UserService.
+     * <p>
+     * When several connections share one component, passing {@code false} only detaches this
+     * connection and leaves the service running for the others.
+     *
+     * @param connection the connection to remove.
+     * @param releaseServer whether the server should also be told to release the service.
+     * @throws RuntimeException if the server is unreachable.
+     */
+    public static boolean unbindUserService(ServiceConnection connection, boolean releaseServer) {
         try {
-            DhizukuServiceConnections.unbind(requireServer(), connection);
+            DhizukuServiceConnections.unbind(requireServer(), connection, releaseServer);
             return true;
         } catch (RemoteException e) {
             throw new RuntimeException(e);

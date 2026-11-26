@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.rosan.dhizuku.aidl.IDhizukuUserServiceConnection;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
+import com.rosan.dhizuku.api.DhizukuUserServiceError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,13 @@ import java.util.concurrent.Executors;
 public final class UserServiceConnection {
 
     private static final String TAG = "DhizukuUserService";
+
+    /**
+     * The first client api version that understands the failure callback.
+     */
+    static final int MIN_CLIENT_VERSION_FAILED = 2;
+
+    private final int mClientVersion;
 
     private final List<IDhizukuUserServiceConnection> connections = new ArrayList<>();
 
@@ -48,9 +56,10 @@ public final class UserServiceConnection {
 
     private boolean startRequested = false;
 
-    UserServiceConnection(int uid, int pid, DhizukuUserServiceArgs args) {
+    UserServiceConnection(int uid, int pid, int clientVersion, DhizukuUserServiceArgs args) {
         this.mUid = uid;
         this.mPid = pid;
+        this.mClientVersion = clientVersion;
         this.mArgs = args;
     }
 
@@ -61,6 +70,23 @@ public final class UserServiceConnection {
                     connection.connected(this.mArgs.build(), service);
                 } catch (RemoteException e) {
                     Log.e(TAG, "failed to notify the connection", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Report a start failure. Clients that predate the failure callback are skipped, they
+     * roll their own timeout instead.
+     */
+    void failed(int reason) {
+        synchronized (connections) {
+            if (this.mClientVersion < MIN_CLIENT_VERSION_FAILED) return;
+            for (IDhizukuUserServiceConnection connection : connections) {
+                try {
+                    connection.failed(this.mArgs.build(), reason);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "failed to report the user service failure", e);
                 }
             }
         }
@@ -154,7 +180,10 @@ public final class UserServiceConnection {
 
             DhizukuProcess process = DhizukuProcess.get();
             IBinder binder = process.isolatedServiceBinder(new ComponentName(process.getContext(), UserService.class));
-            if (binder == null) return;
+            if (binder == null) {
+                failed(DhizukuUserServiceError.START_FAILED);
+                return;
+            }
             IUserServiceManager manager = IUserServiceManager.Stub.asInterface(binder);
             IBinder service = null;
             try {
@@ -162,7 +191,10 @@ public final class UserServiceConnection {
             } catch (RemoteException e) {
                 Log.e(TAG, "failed to start the user service", e);
             }
-            if (service == null) return;
+            if (service == null) {
+                failed(DhizukuUserServiceError.START_FAILED);
+                return;
+            }
 
             try {
                 service.linkToDeath(() -> onServiceDeath(manager), 0);

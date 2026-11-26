@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.rosan.dhizuku.aidl.IDhizuku;
 import com.rosan.dhizuku.aidl.IDhizukuClient;
@@ -26,6 +27,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 public abstract class DhizukuService extends IDhizuku.Stub {
+    private static final String TAG = "DhizukuService";
+
     protected Context mContext;
 
     protected DevicePolicyManager mManager;
@@ -77,6 +80,21 @@ public abstract class DhizukuService extends IDhizuku.Stub {
     @Override
     public String getVersionName() {
         return Variables.SERVICE_VERSION_NAME;
+    }
+
+    /**
+     * Returns the protocol version reported by the connected client, or 0 when it is unknown.
+     * The server app can use this to decide which callbacks the client understands.
+     */
+    protected int getClientVersionCode() {
+        IDhizukuClient client = mClient;
+        if (client == null) return 0;
+        try {
+            return client.getVersionCode();
+        } catch (RemoteException e) {
+            Log.e(TAG, "failed to read the client version", e);
+            return 0;
+        }
     }
 
     public boolean isPermissionGranted() {
@@ -158,7 +176,7 @@ public abstract class DhizukuService extends IDhizuku.Stub {
         int pid = Binder.getCallingPid();
         DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(bundle);
         enforceComponentBelongsToCaller(args.getComponentName());
-        UserServiceConnections.bind(uid, pid, args, connection);
+        UserServiceConnections.bind(uid, pid, getClientVersionCode(), args, connection);
     }
 
     @Override

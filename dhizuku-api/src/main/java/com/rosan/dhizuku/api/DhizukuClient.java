@@ -5,7 +5,7 @@ import android.os.RemoteException;
 import com.rosan.dhizuku.aidl.IDhizukuClient;
 
 public class DhizukuClient extends IDhizukuClient.Stub {
-    private static final int VERSION_CODE = 1;
+    private static final int VERSION_CODE = 7;
 
     @Override
     public int getVersionCode() throws RemoteException {

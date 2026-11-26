@@ -6,7 +6,13 @@ import android.os.Binder;
 import java.util.Objects;
 
 public class DhizukuVariables {
-    public static final int SERVER_VERSION_CODE = 9;
+    public static final int SERVER_VERSION_CODE = 10;
+
+    /**
+     * Protocol version of the client api. Bumped when an AIDL contract changes, so the
+     * server can tell which callbacks it may use.
+     */
+    public static final int CLIENT_VERSION_CODE = 2;
 
     public static final String OFFICIAL_PACKAGE_NAME = "com.rosan.dhizuku";
 

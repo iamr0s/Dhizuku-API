@@ -14,12 +14,12 @@ public final class UserServiceConnections {
         return uid + ":" + pid + "{" + args.flattenToShortString() + "}";
     }
 
-    static UserServiceConnection require(int uid, int pid, DhizukuUserServiceArgs args) {
+    static UserServiceConnection require(int uid, int pid, int clientVersion, DhizukuUserServiceArgs args) {
         synchronized (CACHE) {
             String token = requireToken(uid, pid, args);
             UserServiceConnection userServiceConnection = CACHE.get(token);
             if (userServiceConnection == null) {
-                userServiceConnection = new UserServiceConnection(uid, pid, args);
+                userServiceConnection = new UserServiceConnection(uid, pid, clientVersion, args);
                 CACHE.put(token, userServiceConnection);
             }
             return userServiceConnection;
@@ -38,8 +38,8 @@ public final class UserServiceConnections {
         }
     }
 
-    static void bind(int uid, int pid, DhizukuUserServiceArgs args, IDhizukuUserServiceConnection connection) {
-        require(uid, pid, args).bind(connection);
+    static void bind(int uid, int pid, int clientVersion, DhizukuUserServiceArgs args, IDhizukuUserServiceConnection connection) {
+        require(uid, pid, clientVersion, args).bind(connection);
     }
 
     static void unbind(int uid, int pid, DhizukuUserServiceArgs args) {
@@ -55,8 +55,8 @@ public final class UserServiceConnections {
         if (userServiceConnection != null) userServiceConnection.unbind(connection);
     }
 
-    static void start(int uid, int pid, DhizukuUserServiceArgs args) {
-        require(uid, pid, args).start();
+    static void start(int uid, int pid, int clientVersion, DhizukuUserServiceArgs args) {
+        require(uid, pid, clientVersion, args).start();
     }
 
     static void stop(int uid, int pid, DhizukuUserServiceArgs args) {
