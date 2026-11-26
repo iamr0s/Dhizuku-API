@@ -153,7 +153,7 @@ Dhizuku.setDelegatedScopes(new String[]{"delegated_admin"});
 ### Lock Task Mode
 
 `DeviceAdminReceiver.onLockTaskModeEntering` / `onLockTaskModeExiting` are only delivered
-to the device owner. This API forwards them to your app. Requires api version 9 or newer.
+to the device owner. This API forwards them to your app. Requires api version 8 or newer.
 
 ```java
 DhizukuLockTaskModeListener listener = new DhizukuLockTaskModeListener() {

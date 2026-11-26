@@ -158,8 +158,9 @@ public class Dhizuku {
     /**
      * The first server api version that ships
      * {@link #addLockTaskModeListener(DhizukuLockTaskModeListener)}.
+     * Server api 0.2.0 already implements it, so code 8 is the real floor.
      */
-    private static final int MIN_SERVER_VERSION_LOCK_TASK_LISTENER = 9;
+    private static final int MIN_SERVER_VERSION_LOCK_TASK_LISTENER = 8;
 
     /**
      * The first server api version that reports start failures through
