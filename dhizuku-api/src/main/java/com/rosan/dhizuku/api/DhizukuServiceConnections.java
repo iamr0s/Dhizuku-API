@@ -27,8 +27,15 @@ class DhizukuServiceConnections {
         }
 
         void onServiceConnected(Bundle bundle, IBinder service) {
-            DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(bundle);
+            DhizukuUserServiceArgs args;
+            try {
+                args = new DhizukuUserServiceArgs(bundle);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "ignoring a connection with an unusable bundle", e);
+                return;
+            }
             ComponentName name = args.getComponentName();
+            if (name == null) return;
             String token = name.flattenToString();
             DhizukuServiceConnection serviceConnection;
             boolean linkDeath;
@@ -59,7 +66,8 @@ class DhizukuServiceConnections {
             DhizukuUserServiceArgs args;
             try {
                 args = new DhizukuUserServiceArgs(bundle);
-            } catch (RuntimeException ignored) {
+            } catch (RuntimeException e) {
+                Log.w(TAG, "ignoring a failure with an unusable bundle", e);
                 return;
             }
             ComponentName name = args.getComponentName();
@@ -75,8 +83,15 @@ class DhizukuServiceConnections {
 
         @Override
         public void died(Bundle bundle) {
-            DhizukuUserServiceArgs args = new DhizukuUserServiceArgs(bundle);
+            DhizukuUserServiceArgs args;
+            try {
+                args = new DhizukuUserServiceArgs(bundle);
+            } catch (RuntimeException e) {
+                Log.w(TAG, "ignoring a death notice with an unusable bundle", e);
+                return;
+            }
             ComponentName name = args.getComponentName();
+            if (name == null) return;
             String token = name.flattenToString();
             DhizukuServiceConnection serviceConnection;
             synchronized (map) {
