@@ -36,10 +36,10 @@ jobs:
           {
             echo "client_name=$client_name"
             echo "client_version=$client_version"
-            echo "client_artifact=${client_name}_${client_version}"
+            echo "client_artifact=${client_name}-${client_version}"
             echo "server_name=$server_name"
             echo "server_version=$server_version"
-            echo "server_artifact=${server_name}_${server_version}"
+            echo "server_artifact=${server_name}-${server_version}"
           } >> $GITHUB_ENV
 
       - name: Set signing config

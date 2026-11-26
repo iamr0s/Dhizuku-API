@@ -41,8 +41,8 @@ jobs:
             echo "server_name=$server_name"
             echo "client_version=$client_version"
             echo "server_version=$server_version"
-            echo "client_artifact=${client_name}_${client_version}@${commit}"
-            echo "server_artifact=${server_name}_${server_version}@${commit}"
+            echo "client_artifact=${client_name}-${client_version}@${commit}"
+            echo "server_artifact=${server_name}-${server_version}@${commit}"
           } >> $GITHUB_ENV
 
       - name: Build
