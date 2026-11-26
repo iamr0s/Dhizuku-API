@@ -2,6 +2,7 @@ package com.rosan.dhizuku.api;
 
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.rosan.dhizuku.aidl.IDhizukuRemoteProcess;
 
@@ -27,8 +28,7 @@ public class DhizukuRemoteProcess extends Process {
             remote.asBinder().linkToDeath(() ->
                     DhizukuRemoteProcess.this.remote = null, 0);
         } catch (RemoteException e) {
-            //noinspection CallToPrintStackTrace
-            e.printStackTrace();
+            Log.e(TAG, "failed to link the client death recipient", e);
         }
     }
 

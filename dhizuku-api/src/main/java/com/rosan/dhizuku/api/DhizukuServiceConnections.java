@@ -16,7 +16,6 @@ import java.util.Map;
 
 class DhizukuServiceConnections {
     static final IDhizukuUserServiceConnection iDhizukuUserServiceConnection = new IDhizukuUserServiceConnection.Stub() {
-        /** @noinspection unused*/
         @Override
         public void connected(Bundle bundle, IBinder service) {
             onServiceConnected(bundle, service);

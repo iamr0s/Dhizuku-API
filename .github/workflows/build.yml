@@ -31,28 +31,34 @@ jobs:
 
       - name: Set environment
         run: |
+          client_name="$(grep CLIENT_API_ARTIFACT_ID build.gradle | awk -F\' '{print $2}')"
+          server_name="$(grep SERVER_API_ARTIFACT_ID build.gradle | awk -F\' '{print $2}')"
+          client_version="$(grep CLIENT_API_VERSION build.gradle | awk -F\' '{print $2}')"
+          server_version="$(grep SERVER_API_VERSION build.gradle | awk -F\' '{print $2}')"
+          commit="$(echo ${{ github.sha }} | cut -c-7)"
           {
-            echo "client_name=$(grep CLIENT_API_ARTIFACT_ID build.gradle | awk -F\' '{print $2}')"
-            echo "server_name=$(grep SERVER_API_ARTIFACT_ID build.gradle | awk -F\' '{print $2}')"
-            echo "client_version=v$(grep CLIENT_API_VERSION build.gradle | awk -F\' '{print $2}')"
-            echo "server_version=v$(grep SERVER_API_VERSION build.gradle | awk -F\' '{print $2}')"
-            echo "commit=$(echo ${{ github.sha }} | cut -c-7)"
+            echo "client_name=$client_name"
+            echo "server_name=$server_name"
+            echo "client_version=$client_version"
+            echo "server_version=$server_version"
+            echo "client_artifact=${client_name}_${client_version}@${commit}"
+            echo "server_artifact=${server_name}_${server_version}@${commit}"
           } >> $GITHUB_ENV
 
       - name: Build
         run: |
           ./gradlew --warning-mode=all assembleDebug
-          cp dhizuku-server_api/build/outputs/aar/dhizuku-server_api-debug.aar "${{ env.server_name }}-${{ env.server_version }}@${{ env.commit }}.aar"
-          cp dhizuku-api/build/outputs/aar/dhizuku-api-debug.aar "${{ env.client_name }}-${{ env.client_version }}@${{ env.commit }}.aar"
+          cp dhizuku-server_api/build/outputs/aar/dhizuku-server_api-debug.aar "${{ env.server_artifact }}.aar"
+          cp dhizuku-api/build/outputs/aar/dhizuku-api-debug.aar "${{ env.client_artifact }}.aar"
 
       - name: Upload (Server)
         uses: actions/upload-artifact@v7
         with:
           archive: false
-          path: "${{ env.server_name }}-${{ env.server_version }}@${{ env.commit }}.aar"
+          path: "${{ env.server_artifact }}.aar"
 
       - name: Upload (Client)
         uses: actions/upload-artifact@v7
         with:
           archive: false
-          path: "${{ env.client_name }}-${{ env.client_version }}@${{ env.commit }}.aar"
+          path: "${{ env.client_artifact }}.aar"

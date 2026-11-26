@@ -1,6 +1,6 @@
 [versions]
 agp = "9.5.3"
-app_process = "1.5.0"
+app_process = "1.5.1"
 
 [plugins]
 agp-lib = { id = "com.android.library", version.ref = "agp" }

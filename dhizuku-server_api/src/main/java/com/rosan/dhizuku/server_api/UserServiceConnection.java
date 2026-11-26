@@ -3,6 +3,7 @@ package com.rosan.dhizuku.server_api;
 import android.content.ComponentName;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.rosan.dhizuku.aidl.IDhizukuUserServiceConnection;
 import com.rosan.dhizuku.api.DhizukuUserServiceArgs;
@@ -13,6 +14,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public final class UserServiceConnection {
+
+    private static final String TAG = "DhizukuUserService";
+
     private final List<IDhizukuUserServiceConnection> connections = new ArrayList<>();
 
     private IUserServiceManager mManager = null;
@@ -56,7 +60,7 @@ public final class UserServiceConnection {
                 try {
                     connection.connected(this.mArgs.build(), service);
                 } catch (RemoteException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "failed to notify the connection", e);
                 }
             }
         }
@@ -94,7 +98,7 @@ public final class UserServiceConnection {
                 try {
                     connection.connected(this.mArgs.build(), service);
                 } catch (RemoteException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "failed to notify the connection", e);
                 }
                 return;
             }
@@ -156,14 +160,14 @@ public final class UserServiceConnection {
             try {
                 service = manager.startService(this.mArgs.getComponentName());
             } catch (RemoteException e) {
-                e.printStackTrace();
+                Log.e(TAG, "failed to start the user service", e);
             }
             if (service == null) return;
 
             try {
                 service.linkToDeath(() -> onServiceDeath(manager), 0);
             } catch (RemoteException e) {
-                e.printStackTrace();
+                Log.e(TAG, "failed to link the user service death recipient", e);
                 return;
             }
 

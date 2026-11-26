@@ -2,8 +2,8 @@ ext {
     MIN_SDK = 23
     TARGET_SDK = 36
 
-    CLIENT_API_VERSION = '2.7.0'
-    SERVER_API_VERSION = '0.2.0'
+    CLIENT_API_VERSION = '2.7.1'
+    SERVER_API_VERSION = '0.2.1'
 
     GROUP_ID = 'io.github.iamr0s'
     CLIENT_API_ARTIFACT_ID = 'Dhizuku-API'

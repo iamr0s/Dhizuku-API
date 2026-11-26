@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings({"RedundantThrows", "CallToPrintStackTrace"})
 public class RemoteProcess extends IDhizukuRemoteProcess.Stub {
     private static final String TAG = "DhizukuRemoteProcess";
 
@@ -132,8 +131,7 @@ public class RemoteProcess extends IDhizukuRemoteProcess.Stub {
     public static void transfer(InputStream in, OutputStream out) {
         TRANSFER_EXECUTOR.execute(() -> {
             byte[] buf = new byte[8 * 1024];
-            //noinspection UnusedAssignment
-            int len = 0;
+            int len;
             try {
                 while (true) {
                     len = in.read(buf);
@@ -148,12 +146,12 @@ public class RemoteProcess extends IDhizukuRemoteProcess.Stub {
                 try {
                     in.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "failed to close the input stream", e);
                 }
                 try {
                     out.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "failed to close the output stream", e);
                 }
             }
         });

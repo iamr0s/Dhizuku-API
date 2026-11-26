@@ -17,6 +17,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.RemoteException;
+import android.util.Log;
 
 import com.rosan.dhizuku.aidl.IDhizuku;
 import com.rosan.dhizuku.shared.DhizukuVariables;
@@ -26,6 +27,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Dhizuku {
+
+    private static final String TAG = "Dhizuku";
 
     @SuppressLint("StaticFieldLeak")
     private static volatile Context mContext = null;
@@ -108,7 +111,7 @@ public class Dhizuku {
         try {
             bundle = context.getContentResolver().call(uri, DhizukuVariables.PROVIDER_METHOD_CLIENT, null, extras);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "failed to request the server binder", e);
             return false;
         }
         if (bundle == null) return false;
@@ -128,7 +131,7 @@ public class Dhizuku {
                 }
             }, 0);
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(TAG, "failed to link the server death recipient", e);
         }
         mContext = context;
         return true;
@@ -286,8 +289,7 @@ public class Dhizuku {
      * and your can also use {@link #binderWrapper(IBinder)}.
      */
     public static boolean remoteTransact(IBinder iBinder, int code, Parcel data, Parcel reply, int flags) {
-        //noinspection UnusedAssignment
-        boolean result = false;
+        boolean result;
         Parcel remoteData = Parcel.obtain();
         try {
             remoteData.writeInterfaceToken(DhizukuVariables.BINDER_DESCRIPTOR);

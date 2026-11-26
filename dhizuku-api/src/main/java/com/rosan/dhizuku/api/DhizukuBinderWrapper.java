@@ -45,7 +45,6 @@ public class DhizukuBinderWrapper implements IBinder {
         target.dumpAsync(fd, args);
     }
 
-    /** @noinspection RedundantThrows*/
     @Override
     public boolean transact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
         return Dhizuku.remoteTransact(target, code, data, reply, flags);
